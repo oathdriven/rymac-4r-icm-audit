@@ -1,0 +1,294 @@
+<!-- The 4R audit report page. Fill every {{slot}}. The look is the RyMac receipts sheet:
+     cream paper, Courier Prime, scarlet red pen, ballpoint blue. 1 file, no build step. -->
+<title>4R Audit: {{TARGET NAME}}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* One committed visual world: a typed sheet on a 2006 desk. The site this page
+   reports on IS that sheet, so the page does not flip with the reader's theme.
+   Every colour is painted explicitly so it holds on any host background. */
+:root{
+  --desk:#E4DCC7;
+  --desk-deep:#D6CBB0;
+  --paper:#FDFBF3;
+  --raised:#FFFDF6;
+  --ink:#14110E;
+  --body:#4A4438;
+  --muted:#6E6552;
+  --stone:#8A8069;
+  --hair:#CFC5AB;
+  --hair-soft:#DED5BD;
+  --scarlet:#C8102E;
+  --ballpoint:#2C55C8;
+  --manila:#A8781F;
+  --highlighter:#FFEF7A;
+  --pad:clamp(20px,4vw,52px);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--desk);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255,253,246,.55), rgba(255,253,246,0) 60%),
+    repeating-linear-gradient(92deg, rgba(122,110,86,.05) 0 2px, rgba(122,110,86,0) 2px 7px);
+  color:var(--body);
+  font-family:'Courier Prime',ui-monospace,'Courier New',monospace;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  padding:clamp(14px,3vw,44px);
+}
+
+.sheet{
+  max-width:980px;
+  margin:0 auto;
+  background:var(--paper);
+  border:1px solid var(--hair);
+  box-shadow:0 1px 0 var(--raised) inset, 0 18px 44px rgba(40,34,22,.20), 0 2px 6px rgba(40,34,22,.12);
+  padding:var(--pad);
+}
+
+/* ---------- letterhead ---------- */
+.head{
+  display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:14px;
+}
+.head h1{
+  font-size:clamp(19px,3.1vw,26px);
+  font-weight:700;letter-spacing:.10em;text-transform:uppercase;
+  color:var(--ink);margin:0;line-height:1.25;text-wrap:balance;
+}
+.head .sub{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin-top:6px}
+.stamp{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--scarlet);
+  border:1.5px solid var(--scarlet);padding:7px 11px;transform:rotate(-1.4deg);
+  white-space:nowrap;line-height:1.5;text-align:center;
+}
+.stamp b{display:block;font-weight:700;letter-spacing:.08em}
+
+/* ---------- hero number ---------- */
+.hero{
+  display:grid;grid-template-columns:minmax(0,auto) minmax(220px,1fr);
+  gap:clamp(18px,4vw,48px);align-items:center;
+  padding:clamp(26px,5vw,44px) 0 clamp(20px,4vw,32px);
+  border-bottom:1px solid var(--hair-soft);
+}
+.figure{position:relative;padding:14px 30px;justify-self:start}
+.figure .num{
+  display:block;font-weight:700;color:var(--ink);
+  font-size:clamp(66px,15vw,132px);line-height:.9;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;
+}
+.figure .num i{font-style:normal;font-size:.44em;letter-spacing:0}
+.figure .cap{
+  display:block;margin-top:12px;font-size:12px;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--muted);
+}
+.circle{position:absolute;inset:-14px -6px -18px -10px;width:calc(100% + 16px);height:calc(100% + 32px);overflow:visible;pointer-events:none}
+.circle ellipse{
+  fill:none;stroke:var(--scarlet);stroke-width:2.6;stroke-linecap:round;
+  stroke-dasharray:640;stroke-dashoffset:640;
+  animation:draw 1.15s .35s cubic-bezier(.5,.05,.3,1) forwards;
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.hand{
+  font-family:'Caveat',ui-rounded,cursive;
+  color:var(--scarlet);font-size:clamp(24px,3.6vw,34px);line-height:1.25;
+}
+.hand .small{display:block;font-size:.62em;color:var(--muted);margin-top:6px}
+.hero .read{font-size:15px;color:var(--body);margin-top:14px;max-width:34ch}
+.hero .read b{color:var(--ink)}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1px;background:var(--hair-soft);
+  border-top:1px solid var(--hair-soft);border-bottom:1px solid var(--hair-soft);margin-top:0}
+.tile{background:var(--paper);padding:20px 18px}
+.tile .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);display:block}
+.tile .v{display:block;font-size:clamp(28px,4.4vw,38px);font-weight:700;color:var(--ink);line-height:1.15;
+  margin-top:8px;font-variant-numeric:tabular-nums}
+.tile .n{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.tile .v.blue{color:var(--ballpoint)}
+
+/* ---------- sections ---------- */
+section{padding-top:clamp(30px,5vw,46px)}
+h2{
+  font-size:13px;letter-spacing:.19em;text-transform:uppercase;color:var(--ink);
+  margin:0 0 4px;font-weight:700;
+}
+.lede{font-size:14px;color:var(--muted);margin:0 0 22px;max-width:66ch}
+
+/* ---------- split bars ---------- */
+.splits{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(24px,4vw,44px)}
+.rowlist{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:baseline}
+.row .name{font-size:14px;color:var(--ink)}
+.row .val{font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.track{grid-column:1 / -1;height:14px;background:var(--desk-deep);border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;width:var(--w);transform-origin:left;transform:scaleX(0);
+  animation:slide .65s cubic-bezier(.2,.7,.3,1) forwards;animation-delay:var(--d)}
+@keyframes slide{to{transform:scaleX(1)}}
+.fill.b{background:var(--ballpoint)}
+.fill.m{background:var(--manila)}
+
+/* ---------- then / now ---------- */
+table{border-collapse:collapse;width:100%;font-size:14px;margin-top:14px}
+caption{text-align:left;font-size:12px;color:var(--stone);padding-bottom:8px;letter-spacing:.06em}
+th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--hair-soft);
+  font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+thead th{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone);
+  border-bottom:1.5px solid var(--ink);font-weight:400}
+tbody td{color:var(--ink)}
+tbody tr:last-child td{border-bottom:1.5px solid var(--ink);font-weight:700}
+td .up{color:var(--ballpoint);font-weight:700}
+
+/* ---------- red pen block ---------- */
+.pen{
+  margin-top:clamp(30px,5vw,46px);
+  border:1.5px solid var(--scarlet);
+  padding:clamp(20px,3.6vw,30px);
+  background:linear-gradient(0deg, rgba(200,16,46,.035), rgba(200,16,46,.035));
+}
+.pen h2{color:var(--scarlet)}
+.pen ul{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:16px}
+.pen li{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.pen .x{color:var(--scarlet);font-weight:700;font-size:18px;line-height:1.35}
+.pen .t{font-size:14px;color:var(--ink)}
+.pen .t b{color:var(--scarlet)}
+.pen .t span{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.kept{margin-top:22px;padding-top:18px;border-top:1px dashed rgba(200,16,46,.4);
+  font-family:'Caveat',cursive;font-size:clamp(21px,3vw,27px);color:var(--scarlet);line-height:1.3}
+
+/* ---------- the ask ---------- */
+.cta{margin-top:clamp(34px,5vw,52px)}
+.arrows{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,20px);
+  margin-bottom:10px;flex-wrap:nowrap}
+.arrows svg{flex:0 0 auto;width:clamp(64px,11vw,124px);height:auto}
+.arrows .flip{transform:scaleX(-1)}
+.arrows span{
+  font-family:'Caveat',cursive;color:var(--scarlet);
+  font-size:clamp(20px,3.4vw,31px);line-height:1.2;text-align:center;
+  transform:rotate(-1.5deg);
+}
+.box{
+  border:2px solid var(--scarlet);background:var(--raised);
+  padding:clamp(22px,4vw,34px);text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.box h3{
+  margin:0;color:var(--ink);font-size:clamp(19px,3.2vw,26px);font-weight:700;
+  letter-spacing:.01em;text-wrap:balance;line-height:1.3;
+}
+.box p{margin:0;font-size:15px;color:var(--body);max-width:52ch}
+.btn{
+  display:inline-block;margin-top:6px;
+  background:var(--scarlet);color:#FFF8EE;text-decoration:none;
+  font-family:'Courier Prime',monospace;font-weight:700;
+  font-size:clamp(15px,2.4vw,18px);letter-spacing:.04em;
+  padding:15px 30px;border:2px solid var(--scarlet);
+  transition:background .13s ease,color .13s ease,transform .13s ease;
+}
+.btn:hover,.btn:focus-visible{background:var(--ink);border-color:var(--ink);color:var(--paper);transform:translateY(-1px)}
+.box .fine{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone)}
+.head a,footer a{color:inherit;text-decoration:none;border-bottom:1.5px solid var(--scarlet)}
+.head a:hover,.head a:focus-visible,footer a:hover,footer a:focus-visible{color:var(--scarlet)}
+
+/* ---------- footer ---------- */
+footer{margin-top:clamp(30px,5vw,44px);padding-top:16px;border-top:2px solid var(--ink);
+  display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;
+  font-size:12px;color:var(--stone);letter-spacing:.06em}
+footer b{color:var(--ink);font-weight:700}
+
+a{color:var(--ballpoint)}
+a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offset:3px}
+
+@media (prefers-reduced-motion:reduce){
+  .bar,.fill{animation:none;transform:none}
+  .col .lab{animation:none;opacity:1}
+  .circle ellipse{animation:none;stroke-dashoffset:0}
+}
+@media (max-width:640px){
+  .hero{grid-template-columns:1fr}
+  .figure{justify-self:center;text-align:center}
+}
+</style>
+<div class="sheet">
+
+  <div class="head">
+    <div>
+      <h1>{{TARGET NAME}}<br>the 4R audit: read, run, reality, report</h1>
+      <div class="sub">{{1 LINE: what was audited, and that nothing in the target was changed}}</div>
+    </div>
+    <div class="stamp"><b>Pulled fresh</b>{{DATE}} &middot; {{TIME}}</div>
+  </div>
+
+  <div class="hero">
+    <div class="figure">
+      <svg class="circle" viewBox="0 0 300 190" aria-hidden="true" preserveAspectRatio="none">
+        <ellipse cx="150" cy="95" rx="141" ry="84" transform="rotate(-3 150 95)"></ellipse>
+      </svg>
+      <span class="num">{{THE 1 NUMBER THAT MATTERS MOST}}</span>
+      <span class="cap">{{WHAT THAT NUMBER COUNTS}}</span>
+    </div>
+    <div>
+      <p class="hand">{{THE VERDICT, 1 SENTENCE}}<span class="small">{{THE 1 FIX THAT MATTERS MOST, 1 LINE}}</span></p>
+      <p class="read">{{HOW THE AUDIT RAN: the 4 layers in 2 or 3 plain sentences, the job the stranger was given, and that everything ran in a throwaway copy}}</p>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><span class="k">Routes that resolve</span><span class="v">{{N of M}}</span><span class="n">{{note}}</span></div>
+    <div class="tile"><span class="k">Guards proven</span><span class="v blue">{{N of M}}</span><span class="n">{{note}}</span></div>
+    <div class="tile"><span class="k">Stranger's job</span><span class="v">{{done / partly / no}}</span><span class="n">{{N stuck points}}</span></div>
+    <div class="tile"><span class="k">Claims still true</span><span class="v">{{N of 3}}</span><span class="n">{{note}}</span></div>
+    <div class="tile"><span class="k">Work at risk</span><span class="v">{{N}}</span><span class="n">{{unsaved folders, keys in files}}</span></div>
+    <div class="tile"><span class="k">Unfilled slots</span><span class="v">{{N}}</span><span class="n">{{lines outside templates}}</span></div>
+  </div>
+
+  <div class="pen">
+    <h2>The 3 fixes, ranked by what each would cost you</h2>
+    <ul>
+      <li><span class="x">1</span><span class="t"><b>{{FIX}}</b> {{WHY, in business words}}<span>{{file}}:{{line}}</span></span></li>
+      <li><span class="x">2</span><span class="t"><b>{{FIX}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
+      <li><span class="x">3</span><span class="t"><b>{{FIX}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>Layer 1, read: what the files say</h2>
+    <p class="lede">{{1 line per question that found something, each with its evidence}}</p>
+  </section>
+
+  <section>
+    <h2>Layer 2, run: a stranger did 1 real job</h2>
+    <p class="lede">{{the job, what came out, how many files the stranger read before knowing where to go, each stuck point in the stranger's own words with file and line}}</p>
+  </section>
+
+  <section>
+    <h2>Layer 3, reality: planted mistakes and claims that say done</h2>
+    <table>
+      <thead><tr><th>Promise</th><th>Guard</th><th>On the mistake</th><th>On the clean case</th><th>Word</th></tr></thead>
+      <tbody>
+        <tr><td>{{promise}}</td><td style="text-align:left">{{guard or none}}</td><td>{{fired / quiet}}</td><td>{{passed / fired}}</td><td>{{proven / blind / jumpy / missing}}</td></tr>
+      </tbody>
+    </table>
+    <p class="lede" style="margin-top:14px">{{the 3 claims checked, each still true or not}}</p>
+  </section>
+
+  <div class="pen">
+    <h2>What this audit could not see</h2>
+    <p class="kept">{{always at least 1 line}}</p>
+  </div>
+
+  <footer>
+    <span><b>Counted, not estimated.</b> Every number here was read off a file or a script's own output. The target was never changed.</span>
+    <span>The 4R audit by RyMac, filesnfolders.com &middot; ICM by Jake Van Clief and David McDermott, arXiv:2603.16021</span>
+  </footer>
+
+</div>
