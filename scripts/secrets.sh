@@ -3,7 +3,7 @@
 #
 # Usage:  bash secrets.sh <target folder>
 #
-# 1. Scans every text file (binaries, .git and node_modules skipped) for the shapes of
+# 1. Scans every text file (binaries, .git, node_modules and build output skipped) for the shapes of
 #    real keys: AI keys, cloud keys, payment keys, chat app tokens, private key blocks.
 #    Each hit prints as file:line, the kind of key, and the first 6 characters only.
 #    In a git repo, each hit also says whether the file is saved in the history (the
@@ -30,7 +30,7 @@ payment key (Stripe live)|(sk|rk)_live_[A-Za-z0-9]{20,}
 email key (Resend)|re_[A-Za-z0-9]{8,}_[A-Za-z0-9]{16,}
 private key block|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 
-hits=0
+hits=0; savedhits=0
 while IFS='|' read -r kind rx; do
   [ -z "$kind" ] && continue
   while IFS= read -r h; do
@@ -40,11 +40,12 @@ while IFS='|' read -r kind rx; do
     if [ "$is_repo" -eq 1 ]; then
       if git -C "$T" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then saved="  SAVED IN THE HISTORY"; else saved="  on disk only"; fi
     fi
+    case "$saved" in *SAVED*) savedhits=$((savedhits + 1)) ;; esac
     printf '  key     %s:%s  %s  %s...%s\n' "$rel" "$ln" "$kind" "${val:0:6}" "$saved"
     hits=$((hits + 1))
-  done < <(grep -rInoE --exclude-dir=.git --exclude-dir=node_modules "$rx" "$T" 2>/dev/null)
+  done < <(grep -rInoE --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist --exclude-dir=build "$rx" "$T" 2>/dev/null)
 done <<< "$KINDS"
-echo "KEYS    $hits key shaped strings found"
+echo "KEYS    $hits key shaped strings found, $savedhits of them SAVED IN THE HISTORY (build output folders .next, dist and build skipped)"
 
 envs=0
 while IFS= read -r e; do

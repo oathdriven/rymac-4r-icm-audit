@@ -17,7 +17,12 @@ set -u
 T="${1:?usage: bash guards.sh <target folder>}"
 [ -d "$T" ] || { echo "guards: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"
-PY="$(command -v python3 || command -v python || true)"
+# a python that actually RUNS, not just a name on the path (on Windows, python3 is often a
+# Microsoft Store placeholder that prints nothing and exits 49)
+PY=""
+for c in python3 python; do
+  if command -v "$c" >/dev/null 2>&1 && [ "$("$c" -c 'print(1)' 2>/dev/null)" = "1" ]; then PY="$c"; break; fi
+done
 
 hooks=0
 for s in "$HOME/.claude/settings.json" "$T/.claude/settings.json" "$T/.claude/settings.local.json"; do
