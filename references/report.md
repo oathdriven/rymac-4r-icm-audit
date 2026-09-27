@@ -5,6 +5,9 @@
 1. **The record**, `templates/record.md`, saved in the results home as
    `<target-name>-<YYYY-MM-DD>.md`. If a record for this target already exists from an
    earlier date, keep that file and start the new 1 with the change since then.
+   **Never write over a record.** A second audit on the same day saves as
+   `<target-name>-<YYYY-MM-DD>-2.md`, a third as `-3`, and so on. The newest record is the
+   "last time" for the next audit.
 2. **The page**, `templates/report.html` with every `{{slot}}` filled. In Claude Code with
    Artifacts, publish the page. Anywhere else, save the page beside the record.
 
@@ -21,7 +24,11 @@
    each stuck point), what Reality proved (the guard table).
 5. **What the audit could not see.** Always present. An empty section is a claim that the
    audit saw everything, and no audit does.
-6. **Since last time**, when an earlier record exists: better, worse, same, per count.
+6. **The old audit you were doing, next to the 4R audit.** 1 row per finding from today:
+   could an audit that only reads files have found it (finds this, sees the check exists but
+   not that the check works, cannot see, not checked), and how the 4R audit found it. Name
+   no person and no product. The old audit is "the old audit you were doing".
+7. **Since last time**, when an earlier record exists: better, worse, same, per count.
 
 ## Rules for the words
 

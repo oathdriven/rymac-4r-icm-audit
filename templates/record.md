@@ -40,6 +40,11 @@ Job: {{the job, in the owner's words}} · Input: {{real or made up}}
 Claims checked:
 {{claim, where the claim sits, what was checked, still true or not}}
 
+## The old audit you were doing, next to the 4R audit
+| Today's finding | The old audit (reads files only) | The 4R audit |
+|---|---|---|
+| {{finding}} | {{finds this / sees the check exists / cannot see / not checked}} | {{how the 4R audit found it}} |
+
 ## What the audit could not see
 {{always at least 1 line}}
 

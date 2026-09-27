@@ -281,6 +281,17 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
     <p class="lede" style="margin-top:14px">{{the 3 claims checked, each still true or not}}</p>
   </section>
 
+  <section>
+    <h2>The old audit you were doing, next to the 4R audit</h2>
+    <p class="lede">The old audit reads your files and tells you what the files say. The 4R audit also runs your workspace and plants mistakes. Every finding from today, and which audit could have found each 1.</p>
+    <table>
+      <thead><tr><th>Today's finding</th><th>The old audit</th><th>The 4R audit</th></tr></thead>
+      <tbody>
+        <tr><td>{{finding}}</td><td>{{finds this / sees the check exists / cannot see / not checked}}</td><td>{{how the 4R audit found it}}</td></tr>
+      </tbody>
+    </table>
+  </section>
+
   <div class="pen">
     <h2>What this audit could not see</h2>
     <p class="kept">{{always at least 1 line}}</p>
