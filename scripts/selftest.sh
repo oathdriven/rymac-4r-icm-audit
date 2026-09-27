@@ -43,7 +43,7 @@ expect_exit "routes fires on a dead route" "$rc" 1
 expect_has  "routes counts 3 of 4 resolving" "$out" "3 of 4 named paths resolve"
 expect_has  "routes names the dead route with its line" "$out" "dead    CLAUDE.md:3"
 expect_has  "routes names the unnamed folder" "$out" "orphan  orphan/"
-expect_has  "routes finds a short name where the short name lives" "$out" "`notes.md` is at docs/notes.md"
+expect_has  "routes finds a short name where the short name lives" "$out" '`notes.md` is at docs/notes.md'
 expect_not  "routes skips a naming example in brackets" "$out" "[brand]"
 expect_not  "routes skips a web address" "$out" "example.com"
 

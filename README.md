@@ -65,7 +65,7 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-`24 of 24 held`.
+every line held (`34 of 34 held` on this version).
 
 ---
 
