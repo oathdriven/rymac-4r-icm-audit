@@ -246,19 +246,31 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
     <div class="tile"><span class="k">Routes that resolve</span><span class="v">{{N of M}}</span><span class="n">{{note}}</span></div>
     <div class="tile"><span class="k">Guards proven</span><span class="v blue">{{N of M}}</span><span class="n">{{note}}</span></div>
     <div class="tile"><span class="k">Stranger's job</span><span class="v">{{done / partly / no}}</span><span class="n">{{N stuck points}}</span></div>
-    <div class="tile"><span class="k">Claims still true</span><span class="v">{{N of 3}}</span><span class="n">{{note}}</span></div>
+    <div class="tile"><span class="k">Claims still true</span><span class="v">{{N of M}}</span><span class="n">{{note}}</span></div>
     <div class="tile"><span class="k">Work at risk</span><span class="v">{{N}}</span><span class="n">{{unsaved folders, keys in files}}</span></div>
-    <div class="tile"><span class="k">Unfilled slots</span><span class="v">{{N}}</span><span class="n">{{lines outside templates}}</span></div>
+    <div class="tile"><span class="k">Fixes found</span><span class="v">{{N}}</span><span class="n">{{Money N, Lost work N, Slows the agent N, Polish N. Open from last time N}}</span></div>
   </div>
 
   <div class="pen">
-    <h2>The 3 fixes, ranked by what each would cost you</h2>
+    <h2>The most important</h2>
     <ul>
-      <li><span class="x">1</span><span class="t"><b>{{FIX}}</b> {{WHY, in business words}}<span>{{file}}:{{line}}</span></span></li>
-      <li><span class="x">2</span><span class="t"><b>{{FIX}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
-      <li><span class="x">3</span><span class="t"><b>{{FIX}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
+      <li><span class="x">1</span><span class="t"><b>{{FIX}}</b> {{WHY it matters, in business words, with its counted number}}<span>{{file}}:{{line}}</span></span></li>
+      <li><span class="x">{{N}}</span><span class="t"><b>{{every Money fix, plus any fix that hit the owner or a customer for real this week}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
     </ul>
   </div>
+
+  <section>
+    <h2>Every fix, measured and ranked ({{N}} in all, no cap)</h2>
+    <p class="lede">Every finding from every layer is here. Heaviest weight first: Money, then Lost work, then Slows the agent, then Polish. Inside a weight, the bigger counted number first.</p>
+    <table>
+      <thead><tr><th>#</th><th>Fix</th><th>Who it hits</th><th>How much, counted</th><th>Weight</th><th>File and line</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td style="text-align:left">{{FIX}}</td><td>{{customers and money / your work / the agent}}</td><td>{{the number and what was counted}}</td><td>{{Money / Lost work / Slows the agent / Polish}}</td><td style="text-align:left">{{file}}:{{line}}</td></tr>
+        <tr><td>{{N}}</td><td style="text-align:left">{{every other finding, 1 row each, until none is left}}</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="lede" style="margin-top:14px"><b>Say go and every fix gets made in this order, each with its proof, then the audit runs again.</b> {{the calls only you can make, each as 1 plain question}}</p>
+  </section>
 
   <section>
     <h2>Layer 1, read: what the files say</h2>
@@ -290,6 +302,11 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
         <tr><td>{{finding}}</td><td>{{finds this / sees the check exists / cannot see / not checked}}</td><td>{{how the 4R audit found it}}</td></tr>
       </tbody>
     </table>
+  </section>
+
+  <section>
+    <h2>Since last time</h2>
+    <p class="lede">{{better, worse or same per count, or "first audit, the baseline is set". Then every fix from last time: fixed, still open with its age, or worse}}</p>
   </section>
 
   <div class="pen">

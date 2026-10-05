@@ -5,7 +5,7 @@ done. Layer 3 checks both, and only in the scratch copy.
 
 ## Part A: plant a mistake for each promise
 
-Take the 3 promises from layer 1, question 3. For each 1:
+Take every promise from layer 1, question 3. For each 1:
 
 1. **Find the guard's input.** A hook reads what the agent is about to write. A check script
    reads a file or a folder. A test reads a fixture.
@@ -15,7 +15,10 @@ Take the 3 promises from layer 1, question 3. For each 1:
    guard a copy of its input with the mistake in it.
 3. **Plant 1 clean case the guard should pass.** Almost the same input, without the
    mistake. A guard that blocks everything is as broken as a guard that blocks nothing.
-4. **Run the guard on both. Record 4 things:** did the guard fire on the mistake, did the
+4. **Plant every shape the mistake comes in.** A send script can have 2 names. A banned word
+   can have 2 spellings. A guard that catches 1 shape and misses the other is blind, and only
+   planting both shows it.
+5. **Run the guard on all of them. Record 4 things:** did the guard fire on the mistake, did the
    guard stay quiet on the clean case, the exact line the guard printed, and the exit code.
 
 Score each guard with 1 word:
@@ -30,9 +33,9 @@ Score each guard with 1 word:
 For a promise with no guard, plant the mistake anyway and show that nothing stops the
 mistake. That turns "sentence only" from an opinion into evidence.
 
-## Part B: check 3 claims that say done
+## Part B: check every claim that says done
 
-Find 3 lines that claim a state: done, live, shipped, approved, passing, backed up, a count.
+Find every line in the entry files and the status files that claims a state, 3 at the least: done, live, shipped, approved, passing, backed up, a count.
 Status files, trackers and handoff notes are full of them. For each 1, check the thing the
 claim describes:
 

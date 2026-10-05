@@ -25,12 +25,14 @@ or work the owner thinks is covered and is not.
 
 ## 3. What holds up the biggest promise?
 
-Find the strongest rule in the entry files: the lines with always, never, only, every, must,
-or refuse. Pick the 3 that would cost the most if broken (money, a customer, lost work).
+Find every strong rule in the entry files: the lines with always, never, only, every, must,
+or refuse. List them all. Mark the ones that would cost the most if broken (money, a customer,
+lost work), but test every 1 in layer 3, not only the costly ones.
 
 Then run `bash scripts/guards.sh <target>`. The script lists everything that actually runs:
 the hooks in the Claude settings files and the check scripts in the tree. For each of the 3
-rules, name the guard that holds the rule, or write "held by the sentence only".
+rules, name the guard that holds the rule, or write "held by the sentence only". A hook that
+only adds a reminder and never blocks counts as a sentence.
 
 A rule held only by a sentence is a finding even if nobody has broken the rule yet. Layer 3
 tests every guard named here.
@@ -75,9 +77,11 @@ every value the script prints. A key in a file is 1 shared zip away from a stran
 
 ## 8. Does the workspace tell 1 truth?
 
-Pick 3 facts the owner cares about, like a price, a status, or where a thing lives. Search
-the tree for each 1. If the same fact is written in 2 places and the 2 disagree, the agent
-will quote whichever 1 the agent read last. Cite both places.
+Check every fact the owner cares about that the entry files and status files state: every
+price, every status (live, built, waiting), every count, every place a thing lives, every
+date a status was written. 3 at the least. Search the tree for each 1. If the same fact is written in 2 places and the 2 disagree, the agent
+will quote whichever 1 the agent read last. Cite both places. Every disagreement is its own
+fix.
 
 ---
 
