@@ -109,6 +109,37 @@ out="$(bash "$HERE/secrets.sh" "$K" 2>&1)"; rc=$?
 expect_exit "secrets fires on a saved key" "$rc" 1
 expect_has  "secrets says the key is saved in the history" "$out" "1 of them SAVED IN THE HISTORY"
 
+# ---------- SIZE ----------
+Z="$W/size"; mkdir -p "$Z/skills/s" "$Z/scripts" "$Z/build" "$Z/docs"
+printf 'a\nb\nc\n' > "$Z/CLAUDE.md"
+printf 'a\nb\n' > "$Z/skills/s/SKILL.md"
+printf 'a\nb\nc\nd\n' > "$Z/scripts/check.sh"
+printf 'a\nb\nc\nd\ne\nf\ng\nh\n' > "$Z/build/app.js"
+printf 'not counted\n' > "$Z/docs/notes.md"
+printf '# old\nSIZE rules=2 skills=2 checks=2 files=3\n' > "$W/old-record.md"
+out="$(bash "$HERE/size.sh" "$Z" 2>&1)"; rc=$?
+expect_exit "size counts a workspace" "$rc" 0
+expect_has  "size counts the exact lines in each part" "$out" "SIZE rules=3 skills=2 checks=4 files=3"
+expect_has  "size sets the build folder aside" "$out" "set aside: 1 machine built"
+out="$(bash "$HERE/size.sh" "$Z" "$W/old-record.md" 2>&1)"
+expect_has  "size shows growth against the last record" "$out" "(last audit 2, +2, +100%)"
+expect_has  "size shows no change where nothing grew" "$out" "(last audit 2, +0, +0%)"
+
+# ---------- A LAPTOP COPY BEHIND ITS ONLINE COPY ----------
+N="$W/behind"; mkdir -p "$N"
+git init -q --bare "$W/online.git"
+(cd "$N" && git init -q -b main inner && cd inner && printf 'a\n' > a.md && git add a.md && git -c user.name=t -c user.email=t@t commit -q -m a \
+  && git remote add origin "$W/online.git" && git push -q -u origin main 2>/dev/null)
+printf '# N\n\nThe app lives in `inner/`.\n' > "$N/CLAUDE.md"
+(cd "$W" && git clone -q -b main "$W/online.git" other 2>/dev/null && cd other && printf 'b\n' > b.md && git add b.md \
+  && git -c user.name=t -c user.email=t@t commit -q -m b && git push -q origin main 2>/dev/null)
+out="$(bash "$HERE/nested-repos.sh" "$N" 2>&1)"; rc=$?
+expect_exit "nested-repos fires on a copy behind its online copy" "$rc" 1
+expect_has  "nested-repos says the copy is behind" "$out" "BEHIND, the online copy has saves this computer never got"
+(cd "$N/inner" && git pull -q 2>/dev/null)
+out="$(bash "$HERE/nested-repos.sh" "$N" 2>&1)"
+expect_not  "nested-repos quiet once the copy catches up" "$out" "BEHIND"
+
 # ---------- CLEAN ----------
 C="$W/clean"; mkdir -p "$C/docs"
 printf '# Clean\n\nRead `docs/a.md` first. Everything lives in `docs/`.\n' > "$C/CLAUDE.md"

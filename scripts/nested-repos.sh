@@ -10,6 +10,7 @@
 #            untracked (never saved by the parent), or tracked
 #   unsaved  changes not saved (committed) in the folder's own history
 #   unpushed saves that never reached the folder's online copy, or "no online copy"
+#   behind   saves the online copy has that this computer never got (asks the online copy, read only)
 #
 # Exit 0 = no nested repo, or every nested repo is saved, pushed and not a pointer.
 # Exit 1 = at least 1 nested repo is at risk.
@@ -44,8 +45,24 @@ while IFS= read -r g; do
   else
     unpushed="NO ONLINE COPY set up"; risk=1
   fi
+  # behind: the online copy holds saves this computer never got (2026-10-05: a laptop copy of an app sat 118 saves
+  # behind its online copy and this check called the folder fine). Asks the online copy directly, read only, 20 s max.
+  # NESTED_OFFLINE=1 skips the question.
+  behind=""
+  if [ -z "${NESTED_OFFLINE:-}" ] && up="$(git -C "$R" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)"; then
+    rem="${up%%/*}"; br="${up#*/}"
+    head_online="$(timeout 20 git -C "$R" ls-remote "$rem" "refs/heads/$br" 2>/dev/null | awk '{print $1}')"
+    if [ -n "$head_online" ] && [ "$head_online" != "$(git -C "$R" rev-parse HEAD 2>/dev/null)" ]; then
+      if ! git -C "$R" cat-file -e "$head_online^{commit}" 2>/dev/null; then
+        behind="BEHIND, the online copy has saves this computer never got"; risk=1
+      elif [ "$(git -C "$R" rev-list --count "HEAD..$head_online" 2>/dev/null)" != "0" ]; then
+        behind="BEHIND by $(git -C "$R" rev-list --count "HEAD..$head_online") saves"; risk=1
+      fi
+    fi
+  fi
   [ "$unsaved" != "0" ] && risk=1
   printf '%s/\n  parent   %s\n  unsaved  %s changes\n  unpushed %s\n' "$rel" "$view" "$unsaved" "$unpushed"
+  [ -n "$behind" ] && printf '  behind   %s\n' "$behind"
 done < <(find "$T" -mindepth 2 -maxdepth 5 -name .git -not -path '*/node_modules/*' 2>/dev/null | sort)
 
 echo "NESTED  $n folders inside the target keep their own save history"

@@ -15,7 +15,7 @@ makes the owner run it again and again to find what the first run already saw. A
 earlier version 11 times for that reason. Never again: every finding goes on the report.
 
 Supporting files, read each 1 when its layer starts:
-- `references/read.md`: layer 1, the 8 questions and the script behind each
+- `references/read.md`: layer 1, the 9 questions and the script behind each
 - `references/run.md`: layer 2, the cold walk and the prompt for the fresh agent
 - `references/reality.md`: layer 3, planting mistakes and checking the claims that say done
 - `references/report.md`: layer 4, how every fix gets measured and ranked, and the record
@@ -24,7 +24,7 @@ Supporting files, read each 1 when its layer starts:
 - `templates/record.md`: the record kept in the results home
 
 Scripts, run them, do not read them: `scripts/routes.sh`, `scripts/nested-repos.sh`,
-`scripts/secrets.sh`, `scripts/placeholders.sh`, `scripts/guards.sh`,
+`scripts/secrets.sh`, `scripts/placeholders.sh`, `scripts/guards.sh`, `scripts/size.sh`,
 `scripts/copy-target.sh`. `scripts/selftest.sh` proves every script on planted cases.
 Run it first on a new machine.
 
@@ -57,9 +57,9 @@ Run it first on a new machine.
 
 ## The layers, in order. Copy this and tick each 1 off
 
-- [ ] **1. READ.** Answer the 8 questions in `references/read.md`. 6 of them have a script.
-      Run the scripts, never answer those 6 by reading alone. Every line a script flags is a
-      finding.
+- [ ] **1. READ.** Answer the 9 questions in `references/read.md`. 7 of them have a script.
+      Run the scripts, never answer those 7 by reading alone. Every line a script flags is a
+      finding. Question 9 counts size, so the fix pass can show before and after.
 - [ ] **2. RUN.** Pick 1 real job the workspace exists to do. Hand the scratch copy and the
       job to a fresh agent with the prompt in `references/run.md`. Record whether the job got
       done, how many files the agent read before knowing where to go, and every place the
@@ -78,7 +78,7 @@ Run it first on a new machine.
 - [ ] **5. FIX, on the owner's go.** Offer to fix every item, in rank order. On the go, follow
       `references/fix.md`: each fix gets its own change and its own proof, the calls only the
       owner can make get asked as plain questions, then the 4R audit runs again and the report
-      shows before and after.
+      shows before and after. Before any fix adds a line, look for a line to delete or combine.
 
 ## Rules
 
@@ -97,10 +97,9 @@ Run it first on a new machine.
    service, a job the workspace cannot do without a person.
 7. **Never fix during the audit.** Fixes come after the report, in the fix pass, followed by
    a re-audit so each change is measured.
-8. **Show every finding in 1 report, measured and ranked. Never only 3.** A capped list makes
-   the owner rerun the audit to find what this run already saw. Every finding from every layer
-   becomes a numbered fix with its measurements, its file and its line. The most important are
-   named first. Nothing found gets held back.
+8. **Show every finding in 1 report, measured and ranked. Never only 3.** A capped list makes the owner rerun the audit to find what this run
+   already saw. Every finding from every layer becomes a numbered fix with its measurements,
+   its file and its line. The most important are named first. Nothing found gets held back.
 
 ## Credit
 

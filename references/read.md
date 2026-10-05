@@ -1,4 +1,4 @@
-# Layer 1, READ: 8 questions
+# Layer 1, READ: 9 questions
 
 Read the target's entry files first: the root `CLAUDE.md` (or `AGENTS.md`), then the root
 `CONTEXT.md`. Then answer each question below. A question with a script gets the script's
@@ -82,6 +82,21 @@ price, every status (live, built, waiting), every count, every place a thing liv
 date a status was written. 3 at the least. Search the tree for each 1. If the same fact is written in 2 places and the 2 disagree, the agent
 will quote whichever 1 the agent read last. Cite both places. Every disagreement is its own
 fix.
+
+## 9. Is the workspace growing?
+
+`bash scripts/size.sh <target> <last record>`
+
+Counts the lines in the 3 parts that grow every time a fix gets added: the rules an agent
+reads first (every CLAUDE.md, AGENTS.md, CONTEXT.md), the skills (the written instructions),
+and the checks (every hook, guard and script). Machine built or borrowed code is set aside and
+counted apart. Given the last record, each part shows its change since then.
+
+A builder's own routine audits grew his setup from about 15,000 lines to 95,000 in a few weeks,
+because every fix was added and almost nothing was deleted. An agent reads more, follows less,
+and costs more every time that happens. Growth is not a crime: new work adds lines. **A part that
+grew while the work stayed the same is a finding**, and so is any 1 file in the 10 biggest that
+nobody can say why it is that big. The record keeps the SIZE line so the next audit can compare.
 
 ---
 

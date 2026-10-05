@@ -25,6 +25,15 @@ Results home: `{{results home}}` (left out of every layer) · Last audit: {{date
 | Fixes found: Money / Lost work / Slows the agent / Polish | {{n}} / {{n}} / {{n}} / {{n}} | |
 | Fixes from last time still open | {{n of m}} | |
 
+## Size (question 9)
+| Part | Lines | Files | Last time |
+|---|---|---|---|
+| rules | {{n}} | {{n}} | {{n or -}} |
+| skills | {{n}} | {{n}} | |
+| checks | {{n}} | {{n}} | |
+The 10 biggest: {{file, lines}} · Set aside: {{n}} built or borrowed files
+SIZE rules={{n}} skills={{n}} checks={{n}} files={{n}}
+
 ## Every fix, measured and ranked (all of them, no cap)
 | # | Fix | Who it hits | How much (counted) | Weight | File and line |
 |---|---|---|---|---|---|
@@ -64,4 +73,4 @@ Claims checked:
 {{every fix from last time: fixed, still open (with its age), or worse}}
 
 ## The fix pass
-{{after the owner's go: 1 line per fix, what changed, file and line, the proof. Then the re-audit's before and after}}
+{{after the owner's go: 1 line per fix, what changed, file and line, lines added and removed, the proof. Then the re-audit's before and after, the size line included}}

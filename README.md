@@ -22,9 +22,9 @@ Your workspace is never changed. Not 1 byte. Everything runs in a throwaway copy
 
 ## The 4 layers
 
-1. **Read.** 8 questions about the structure. Do your routes go anywhere? Is every folder
-   on the map? Is anything unsaved? Are there keys sitting in files? 6 of the 8 are
-   answered by a script, not an opinion.
+1. **Read.** 9 questions about the structure. Do your routes go anywhere? Is every folder
+   on the map? Is anything unsaved, or behind its online copy? Are there keys sitting in files?
+   Is the workspace growing? 7 of the 9 are answered by a script, not an opinion.
 2. **Run.** A fresh AI that has never seen your workspace does 1 real job, cold. The AI
    reports every place it got stuck, with the file and line that caused it.
 3. **Reality.** Every promise your workspace makes gets tested. The audit plants a mistake
@@ -74,9 +74,24 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`39 of 39 held` on this version).
+every line held (`47 of 47 held` on this version).
 
 ---
+
+## What changed in v1.4.0
+
+A builder in the Skool asked the right question: are your fixes only added, or deleted too? His
+own routine audits grew his setup from about 15,000 lines to 95,000 in a few weeks. So the 4R
+audit now counts size.
+
+- **Question 9, "Is the workspace growing?"** `scripts/size.sh` counts the lines in your rules,
+  your skills and your checks, lists the 10 biggest files, sets machine built and borrowed code
+  aside, and compares against your last audit.
+- **The fix pass looks for a line to delete or combine before it adds 1**, and records the lines
+  each fix added and removed. The re-audit shows size before and after.
+- **The saved work check now asks the online copy**, so a laptop copy that fell behind its online
+  copy gets flagged, not called fine.
+- Self test: 47 of 47.
 
 ## What changed in v1.3.1
 
