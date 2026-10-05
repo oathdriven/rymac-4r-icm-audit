@@ -64,6 +64,21 @@ expect_exit "secrets fires on a key" "$rc" 1
 expect_has  "secrets names the kind" "$out" "AI key (Anthropic)"
 expect_has  "secrets lists the settings file" "$out" "ENVS    1 settings"
 expect_not  "secrets never prints the full key" "$out" "$FAKE"
+TW="$(printf '%s%s' 0123456789abcdef 0123456789abcdef)"   # built at run time so this file holds no token shape
+mkdir -p "$W/tw/.claude"; printf '{"allow":["Bash(sed -i s/^TWILIO_AUTH_TOKEN=.*/TWILIO_AUTH_TOKEN=%s/ .env.local)"]}\n' "$TW" > "$W/tw/.claude/settings.local.json"
+out="$(bash "$HERE/secrets.sh" "$W/tw" 2>&1)"; rc=$?
+expect_exit "secrets fires on a token pasted into an allow rule" "$rc" 1
+expect_has  "secrets names a Twilio token" "$out" "phone app token (Twilio)"
+NS="$(printf '%s%s' Zq8kLmN3pR7tVx2y B5cD9fG4hJ6kM1nP)"
+mkdir -p "$W/ns"; printf 'BUILD_GRANT_SECRET=%s\n' "$NS" > "$W/ns/notes.md"
+out="$(bash "$HERE/secrets.sh" "$W/ns" 2>&1)"; rc=$?
+expect_has  "secrets names a secret saved under its own name" "$out" "named secret in a file"
+mkdir -p "$W/nc"; printf 'Set BUILD_GRANT_SECRET in Vercel. Never paste the value here.\n' > "$W/nc/notes.md"
+out="$(bash "$HERE/secrets.sh" "$W/nc" 2>&1)"; rc=$?
+expect_exit "secrets quiet on a secret named but not written" "$rc" 0
+mkdir -p "$W/nf"; printf 'process.env.X_SECRET = "whsec_test_only_not_real_000000";\n' > "$W/nf/a.test.mjs"
+out="$(bash "$HERE/secrets.sh" "$W/nf" 2>&1)"; rc=$?
+expect_exit "secrets quiet on a value that names itself a test fake" "$rc" 0
 
 out="$(bash "$HERE/nested-repos.sh" "$B" 2>&1)"; rc=$?
 expect_exit "nested-repos fires on unsaved work" "$rc" 1

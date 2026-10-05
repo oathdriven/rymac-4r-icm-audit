@@ -74,9 +74,15 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`34 of 34 held` on this version).
+every line held (`39 of 39 held` on this version).
 
 ---
+
+## What changed in v1.3.1
+
+The key scan now finds 2 more kinds: a phone app token (Twilio), and any value saved under a name
+that ends in `_TOKEN`, `_SECRET`, `_API_KEY` or `_PASSWORD`, wherever the value sits, a settings file
+included. A value that names itself a test fake is counted, not listed. Self test: 39 of 39.
 
 ## What changed in v1.3.0
 

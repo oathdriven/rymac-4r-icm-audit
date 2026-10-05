@@ -28,14 +28,20 @@ code host token (GitHub)|(ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,})
 chat app token (Slack)|xox[abprs]-[A-Za-z0-9-]{10,}
 payment key (Stripe live)|(sk|rk)_live_[A-Za-z0-9]{20,}
 email key (Resend)|re_[A-Za-z0-9]{8,}_[A-Za-z0-9]{16,}
+phone app token (Twilio)|(SK[0-9a-fA-F]{32}|AUTH_TOKEN["[:space:]]*[=:]["[:space:]]*[0-9a-fA-F]{32})
+named secret in a file|(_TOKEN|_SECRET|_API_KEY|_PASSWORD)["[:space:]]*[=:]["[:space:]]*[A-Za-z0-9_-]{24,}
 private key block|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 
-hits=0; savedhits=0
+hits=0; savedhits=0; fakes=0
 while IFS='|' read -r kind rx; do
   [ -z "$kind" ] && continue
   while IFS= read -r h; do
     file="${h%%:*}"; rest="${h#*:}"; ln="${rest%%:*}"; val="${rest#*:}"
     rel="${file#$T/}"
+    # a value that names itself a fake (like a test file's "whsec_test_only_not_real") is no key: counted, never listed
+    if [ "$kind" = "named secret in a file" ] && printf '%s' "$val" | grep -qiE 'test|fake|example|dummy|harness|not.?real|placeholder|sample'; then
+      fakes=$((fakes + 1)); continue
+    fi
     saved=""
     if [ "$is_repo" -eq 1 ]; then
       if git -C "$T" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then saved="  SAVED IN THE HISTORY"; else saved="  on disk only"; fi
@@ -45,7 +51,7 @@ while IFS='|' read -r kind rx; do
     hits=$((hits + 1))
   done < <(grep -rInoE --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist --exclude-dir=build "$rx" "$T" 2>/dev/null)
 done <<< "$KINDS"
-echo "KEYS    $hits key shaped strings found, $savedhits of them SAVED IN THE HISTORY (build output folders .next, dist and build skipped)"
+echo "KEYS    $hits key shaped strings found, $savedhits of them SAVED IN THE HISTORY (build output folders .next, dist and build skipped; $fakes values that name themselves test fakes left out)"
 
 envs=0
 while IFS= read -r e; do
