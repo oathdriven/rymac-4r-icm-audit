@@ -32,7 +32,7 @@ phone app token (Twilio)|(SK[0-9a-fA-F]{32}|AUTH_TOKEN["[:space:]]*[=:]["[:space
 named secret in a file|(_TOKEN|_SECRET|_API_KEY|_PASSWORD)["[:space:]]*[=:]["[:space:]]*[A-Za-z0-9_-]{24,}
 private key block|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 
-hits=0; savedhits=0; fakes=0
+hits=0; savedhits=0; fakes=0; packed=0
 while IFS='|' read -r kind rx; do
   [ -z "$kind" ] && continue
   while IFS= read -r h; do
@@ -41,6 +41,12 @@ while IFS='|' read -r kind rx; do
     # a value that names itself a fake (like a test file's "whsec_test_only_not_real") is no key: counted, never listed
     if [ "$kind" = "named secret in a file" ] && printf '%s' "$val" | grep -qiE 'test|fake|example|dummy|harness|not.?real|placeholder|sample'; then
       fakes=$((fakes + 1)); continue
+    fi
+    # a match inside a picture packed into a page (a data: address, or a run of 100+ base64 letters
+    # right before or after the match) is the picture's own letters, not a key: counted, never listed
+    v="${val:0:16}"
+    if sed -n "${ln}{p;q}" "$file" | grep -qE "(data:[^,]{0,80};base64,[A-Za-z0-9+/=]*|[A-Za-z0-9+/]{100})$v"; then
+      packed=$((packed + 1)); continue
     fi
     saved=""
     if [ "$is_repo" -eq 1 ]; then
@@ -51,7 +57,7 @@ while IFS='|' read -r kind rx; do
     hits=$((hits + 1))
   done < <(grep -rInoE --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist --exclude-dir=build "$rx" "$T" 2>/dev/null)
 done <<< "$KINDS"
-echo "KEYS    $hits key shaped strings found, $savedhits of them SAVED IN THE HISTORY (build output folders .next, dist and build skipped; $fakes values that name themselves test fakes left out)"
+echo "KEYS    $hits key shaped strings found, $savedhits of them SAVED IN THE HISTORY (build output folders .next, dist and build skipped; $fakes values that name themselves test fakes left out; $packed matches inside a picture packed into a page left out)"
 
 envs=0
 while IFS= read -r e; do

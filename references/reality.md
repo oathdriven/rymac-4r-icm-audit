@@ -3,9 +3,21 @@
 A guard that exists is not a guard that works. A claim that says done is not a thing that is
 done. Layer 3 checks both, and only in the scratch copy.
 
-## Part A: plant a mistake for each promise
+## Part A0: replay the saved tests first
 
-Take every promise from layer 1, question 3. For each 1:
+The results home keeps a folder `4r-tests/` beside the records: every mistake and clean case
+any earlier run planted, each with the guard it feeds, the exact input, and what the guard
+should do (block or pass). Replay every 1 of them first, unchanged. **These replays are the
+only guard numbers that go in "since last time".** A saved test that held last time and
+breaks now is a real step back. Never rewrite a saved test to make it pass.
+
+## Part A: plant new shapes, only where something changed
+
+Plant new tests only for: a promise with no saved tests yet, a guard file changed since the
+last record (its date or its save history says so), or a hole the owner named. Nothing
+changed means nothing new gets planted, and the replay is the answer. Every new test gets
+saved into `4r-tests/` the same run, and the report lists new tests in their own count,
+apart from the replays. For each promise that gets new tests:
 
 1. **Find the guard's input.** A hook reads what the agent is about to write. A check script
    reads a file or a folder. A test reads a fixture.
@@ -59,4 +71,5 @@ running the rebuild finds it.
 
 ## Put everything back
 
-Delete the scratch copy when the report is written. Nothing planted may leave the scratch.
+Save every test planted this run into the results home's `4r-tests/` (the inputs, the
+expected result, and any small script that feeds them). Then delete the scratch copy. Nothing planted may leave the scratch.

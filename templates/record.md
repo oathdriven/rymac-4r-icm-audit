@@ -17,7 +17,8 @@ Results home: `{{results home}}` (left out of every layer) · Last audit: {{date
 | Lines with an unfilled slot, outside templates | {{n}} | |
 | Folders with their own save history at risk | {{n}} | |
 | Key shaped strings / settings files with keys | {{n}} / {{n}} | |
-| Promises tested / guards proven | {{n}} / {{n}} | |
+| Saved tests replayed / still held | {{n}} / {{n}} | |
+| New tests this run (only where something changed) / found a hole | {{n}} / {{n}} | |
 | Stranger's job done | {{yes, partly, no}} | |
 | Files the stranger read before knowing where to go | {{n}} | |
 | Places the stranger got stuck | {{n}} | |

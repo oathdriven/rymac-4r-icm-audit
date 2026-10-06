@@ -83,7 +83,9 @@ If the counts do not match, the report is not done.
    could an audit that only reads files have found it (finds this, sees the check exists but
    not that the check works, cannot see, not checked), and how the 4R audit found it. Name
    no person and no product. The old audit is "the old audit you were doing".
-8. **Since last time**, when an earlier record exists: better, worse, same, per count, and
+8. **Since last time**, when an earlier record exists: better, worse, same, per count (the guard
+   count comes ONLY from the replayed saved tests; new tests this run are counted on their own
+   line and never turn a held guard into a worse number), and
    every fix from last time marked fixed, still open or worse.
 9. **The offer.** 1 line: "Say go and every fix gets made in this order, each with its proof,
    then the audit runs again." The calls only the owner can make are listed as plain

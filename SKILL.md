@@ -88,8 +88,11 @@ Run it first on a new machine.
    sentence works until the day the agent forgets the sentence. A hook that only reminds is
    still a sentence.
 3. **A guard that exists is not a guard that works.** Only a planted mistake proves a guard.
-   Plant more than 1 shape of the mistake when the mistake comes in more than 1 shape (a send
-   script with 2 different names, a word in 2 spellings).
+   **Every planted test is saved and replayed on every later run**, so before and after
+   always compare the SAME tests. New shapes get planted only for a promise with no saved
+   tests yet, a guard file that changed since the last record, or a hole the owner names.
+   A run that invents a harder test and scores it against an easier old 1 makes a
+   working guard look broken, and the owner looks bad to his own people.
 4. **When torn between 2 readings, take the harsher 1 and say you were torn.**
 5. **Write for the owner, not for a builder.** Plain words a 9th grader follows. Any
    technical word gets explained in the same sentence. Numbers as digits.

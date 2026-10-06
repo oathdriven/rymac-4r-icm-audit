@@ -78,6 +78,22 @@ every line held (`47 of 47 held` on this version).
 
 ---
 
+## What changed in v1.5.0
+
+Owners running the audit kept getting a fresh list of "new" problems every run, even when
+nothing in their workspace had changed. The cause was the audit, not the workspace: each run
+made up harder tests and scored them against the easier tests from the run before. A guard
+that worked looked broken.
+
+- **Every planted test is saved** in your results home (`4r-tests/`) and **replayed first on
+  every run, unchanged.** Before and after now compare the SAME tests.
+- **New tests get planted only where something changed**: a guard file that changed since the
+  last audit, a promise with no tests yet, or a hole you name. Nothing changed, nothing new.
+- **New tests are counted on their own line**, never mixed into "since last time".
+- The key scan no longer calls a picture packed into a web page a saved key, and still reports
+  every long real token.
+- Self test: 47 of 47.
+
 ## What changed in v1.4.0
 
 A builder in the Skool asked the right question: are your fixes only added, or deleted too? His
