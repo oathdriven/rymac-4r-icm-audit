@@ -15,6 +15,9 @@
 # dead route or unnamed folder. Exit 2 = no target, or no entry file at its top.
 
 set -u
+# 2026-10-07 (a member found it): a plain "git status" rewrites .git/index and can
+# leave an index.lock behind in the folder it reads. This keeps every git call read only.
+export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash routes.sh <target folder>}"
 [ -d "$T" ] || { echo "routes: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"

@@ -14,6 +14,9 @@
 # Exit 0 always. This script lists evidence, layer 3 proves whether each guard works.
 
 set -u
+# 2026-10-07 (a member found it): a plain "git status" rewrites .git/index and can
+# leave an index.lock behind in the folder it reads. This keeps every git call read only.
+export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash guards.sh <target folder>}"
 [ -d "$T" ] || { echo "guards: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"
@@ -52,6 +55,14 @@ PYEOF
   fi
 done
 echo "HOOKS   $hooks commands that run on their own"
+# 2026-10-07 (a member found it): run from a cloud sandbox (Cowork, a web session),
+# this computer's home folder is not the owner's, so their own hooks are invisible. A 0 there
+# would tell them they have no guards when they might. Say it could not see, never 0.
+if [ ! -f "$HOME/.claude/settings.json" ]; then
+  echo "BLIND   couldn't see the owner's own hooks: this computer has no $HOME/.claude/settings.json"
+  echo "        (a cloud sandbox has none). The count above is the target's own settings only."
+  echo "        Report the owner's hooks as \"couldn't see\", never as 0."
+fi
 
 checks="$(find "$T" \( -name .git -o -name node_modules \) -prune -o -type f \
           \( -name '*.sh' -o -name '*.py' -o -name '*.mjs' -o -name '*.js' -o -name '*.ps1' \) -print 2>/dev/null \

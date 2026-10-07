@@ -92,6 +92,14 @@ mkdir -p "$B/.claude"
 printf '{"hooks":{"PreToolUse":[{"matcher":"Write","hooks":[{"type":"command","command":"bash scripts/check-thing.sh"}]}]}}' > "$B/.claude/settings.json"
 out="$(HOME="$W/nohome" bash "$HERE/guards.sh" "$B" 2>&1)"
 expect_has  "guards reads a hook out of the target's settings" "$out" "HOOKS   1 commands"
+expect_has  "guards says it could not see the owner's hooks on a computer with none" "$out" "BLIND"
+
+# 2026-10-07: the audit never writes into the target, not even git's own cache
+find "$B" -path '*/.git/*' -prune -o -type f -print | while read -r f; do touch "$f"; done
+before="$(find "$B" -path '*/.git/index*' -type f -exec md5sum {} + | sort)"
+NESTED_OFFLINE=1 bash "$HERE/nested-repos.sh" "$B" >/dev/null 2>&1
+after="$(find "$B" -path '*/.git/index*' -type f -exec md5sum {} + | sort)"
+[ "$before" = "$after" ] && ok "nested-repos leaves every .git/index untouched" || bad "nested-repos rewrote a .git/index in the target"
 
 D="$W/scratch"
 out="$(bash "$HERE/copy-target.sh" "$B" "$D" 2>&1)"; rc=$?

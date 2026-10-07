@@ -16,6 +16,9 @@
 # Exit 1 = at least 1 nested repo is at risk.
 
 set -u
+# 2026-10-07 (a member found it): a plain "git status" rewrites .git/index and can
+# leave an index.lock behind in the folder it reads. This keeps every git call read only.
+export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash nested-repos.sh <target folder>}"
 [ -d "$T" ] || { echo "nested-repos: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"

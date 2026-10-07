@@ -17,6 +17,9 @@
 # Exit 0 = no slot in any entry file. Exit 1 = at least 1.
 
 set -u
+# 2026-10-07 (a member found it): a plain "git status" rewrites .git/index and can
+# leave an index.lock behind in the folder it reads. This keeps every git call read only.
+export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash placeholders.sh <target folder>}"
 [ -d "$T" ] || { echo "placeholders: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"

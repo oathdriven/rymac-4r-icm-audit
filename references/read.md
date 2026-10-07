@@ -34,6 +34,10 @@ the hooks in the Claude settings files and the check scripts in the tree. For ea
 rules, name the guard that holds the rule, or write "held by the sentence only". A hook that
 only adds a reminder and never blocks counts as a sentence.
 
+If the script prints a `BLIND` line, the audit is running on a computer that is not the
+owner's (a cloud sandbox like Cowork). Their own hooks were invisible. Write "couldn't see"
+for the owner's hooks, never 0, and list it under what the audit could not see.
+
 A rule held only by a sentence is a finding even if nobody has broken the rule yet. Layer 3
 tests every guard named here.
 

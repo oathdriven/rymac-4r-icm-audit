@@ -21,6 +21,9 @@
 # Exit 0 = counted. Exit 2 = no target. Growth is a finding for the report, never a crash.
 
 set -u
+# 2026-10-07 (a member found it): a plain "git status" rewrites .git/index and can
+# leave an index.lock behind in the folder it reads. This keeps every git call read only.
+export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash size.sh <target folder> [last record .md]}"
 LAST="${2:-}"
 [ -d "$T" ] || { echo "size: no folder at $T"; exit 2; }

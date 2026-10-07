@@ -74,9 +74,22 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`47 of 47 held` on this version).
+every line held (`49 of 49 held` on this version).
 
 ---
+
+## What changed in v1.5.1
+
+A member ran the audit and caught it breaking 2 of its own promises. Both are fixed.
+
+- **The audit never writes into your folder now, not even git's own cache.** Checking a code
+  folder for unsaved work ran `git status`, which quietly rewrites `.git/index` and can leave an
+  empty `index.lock` behind that stops git working there. Every git call in every script is read
+  only now (`GIT_OPTIONAL_LOCKS=0`).
+- **"Couldn't see" instead of "0 hooks".** Run from a cloud sandbox (Cowork, a web session), the
+  audit cannot see the hooks on your own computer. It used to report 0, which tells you that you
+  have no guards when you might. It now prints a `BLIND` line and the report says "couldn't see".
+- Self test: 49 of 49 (the 2 new checks are these 2 bugs).
 
 ## What changed in v1.5.0
 
