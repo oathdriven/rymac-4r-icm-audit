@@ -54,7 +54,9 @@ while IFS= read -r g; do
   behind=""
   if [ -z "${NESTED_OFFLINE:-}" ] && up="$(git -C "$R" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null)"; then
     rem="${up%%/*}"; br="${up#*/}"
-    head_online="$(timeout 20 git -C "$R" ls-remote "$rem" "refs/heads/$br" 2>/dev/null | awk '{print $1}')"
+    # macOS ships no timeout command, so it is only used where it exists (a Mac user caught this, 2026-10-09).
+    TO=""; command -v timeout >/dev/null 2>&1 && TO="timeout 20"
+    head_online="$($TO git -C "$R" ls-remote "$rem" "refs/heads/$br" 2>/dev/null | awk '{print $1}')"
     if [ -n "$head_online" ] && [ "$head_online" != "$(git -C "$R" rev-parse HEAD 2>/dev/null)" ]; then
       if ! git -C "$R" cat-file -e "$head_online^{commit}" 2>/dev/null; then
         behind="BEHIND, the online copy has saves this computer never got"; risk=1

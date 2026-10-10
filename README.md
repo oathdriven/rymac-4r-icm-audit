@@ -78,6 +78,16 @@ every line held (`49 of 49 held` on this version).
 
 ---
 
+## What changed in v1.5.2
+
+A Mac user ran the self test, got 47 of 49, and sent the fix.
+
+- **The "behind its online copy" check works on a Mac now.** The check asked the online copy
+  with `timeout 20`, and macOS doesn't ship a `timeout` command. The call failed quietly, so a
+  Mac never saw BEHIND, even when the copy really was behind. The script uses `timeout` only
+  where it exists now.
+- Self test: 49 of 49 on a Mac (it was 47 of 49).
+
 ## What changed in v1.5.1
 
 A member ran the audit and caught it breaking 2 of its own promises. Both are fixed.
