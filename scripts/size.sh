@@ -7,7 +7,8 @@
 #   rules   the files an agent reads first: every CLAUDE.md, AGENTS.md and CONTEXT.md
 #   skills  the written instructions: every .md under a folder named skills/, and every SKILL.md
 #   checks  every script: .sh .py .mjs .js .cjs .ts .ps1 (hooks, guards, check scripts)
-# Set aside (counted apart, never in the totals): build/ dist/ vendor/ .next/ coverage/ gsd-core/ synced/, *.min.js, *.bundle.js
+# Set aside (counted apart, never in the totals): build/ dist/ vendor/ .next/ coverage/ gsd-core/ synced/, *.min.js, *.bundle.js,
+# and any folder holding a file named .4r-borrowed (a toolkit somebody else wrote, installed as is)
 # Saved files only when the target is a git repo (what an agent and a backup both see),
 # else every file. node_modules and .git are never counted.
 # Prints each part, the 10 biggest files, and 1 machine line the record keeps:
@@ -40,9 +41,15 @@ fi
 # (1 program per file took minutes on a 28,000 file workspace on Windows)
 # machine built or borrowed code is set aside and counted apart: nobody wrote those lines by hand, and they would
 # drown the signal (a video app's build folder alone held 250,000 lines on the first run)
-awk -v R="$W/rules" -v S="$W/skills" -v C="$W/checks" -v X="$W/aside" '
+# 2026-10-18 (fix 20 of an audit): a borrowed toolkit installed as a skill (39,246 lines) counted as the owner's own
+# checks and made a quiet 2 weeks read +38%. A folder holding a file named .4r-borrowed is set aside with all it holds.
+(cd "$T" && find . \( -name .git -o -name node_modules \) -prune -o -type f -name .4r-borrowed -print 2>/dev/null \
+  | sed 's#^\./##; s#\.4r-borrowed$##') > "$W/borrowed"
+awk -v R="$W/rules" -v S="$W/skills" -v C="$W/checks" -v X="$W/aside" -v B="$W/borrowed" '
+  BEGIN { nb = 0; while ((getline line < B) > 0) if (line != "") bp[++nb] = line }
   /(^|\/)node_modules\// { next }
   /(^|\/)(build|dist|vendor|\.next|coverage|gsd-core|synced)\// || /\.(min|bundle)\.js$/ { print > X; next }
+  { for (i = 1; i <= nb; i++) if (index($0, bp[i]) == 1) { print > X; next } }
   {
     n = split($0, a, "/"); b = a[n]
     if (b == "CLAUDE.md" || b == "AGENTS.md" || b == "CONTEXT.md") print > R

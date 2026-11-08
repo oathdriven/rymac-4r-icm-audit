@@ -66,7 +66,8 @@ fi
 
 checks="$(find "$T" \( -name .git -o -name node_modules \) -prune -o -type f \
           \( -name '*.sh' -o -name '*.py' -o -name '*.mjs' -o -name '*.js' -o -name '*.ps1' \) -print 2>/dev/null \
-          | grep -iE '(check|guard|lint|valid|gate|test|audit|verify|hook)[^/]*$' | sort)"
+          | grep -iE '(check|guard|lint|valid|gate|test|audit|verify|hook)[^/]*$' \
+          | grep -v '/4r-audits/' | sort)"   # 2026-10-18 (fix 21 of an audit): the audit's own saved tests are not the owner's checks
 nchecks=0
 [ -n "$checks" ] && nchecks=$(printf '%s\n' "$checks" | wc -l | tr -d ' ')
 echo "CHECKS  $nchecks scripts named like a check"

@@ -78,6 +78,25 @@ every line held (`49 of 49 held` on this version).
 
 ---
 
+## What changed in v1.5.3
+
+3 fixes that 3 real audits found in October and November. Each 1 made a working workspace
+look worse than it was.
+
+- **The audit's own saved tests are not your checks.** The saved tests live in your results
+  home (`4r-audits/4r-tests/`), and the guard count used to count them as checks you wrote.
+  Every run looked like it had grown more guards than it had. Anything under `4r-audits/` is
+  left out of the guard count now.
+- **A borrowed toolkit is set aside, not counted as yours.** A toolkit somebody else wrote,
+  installed as a skill, counted as 39,246 lines of your own checks on 1 run, and a quiet 2
+  weeks read as +38%. Put an empty file named `.4r-borrowed` inside any folder you installed
+  as is, and the size count sets that folder aside (the way it already sets aside `vendor/`
+  and `dist/`).
+- **New files come along on the copy.** The throwaway copy took only files git had already
+  saved. A file made after the last save was missing from the copy, so the stranger walked
+  twice on a re-audit. The copy now carries every file git does not ignore, saved or not.
+- Self test: 49 of 49.
+
 ## What changed in v1.5.2
 
 A Mac user ran the self test, got 47 of 49, and sent the fix.

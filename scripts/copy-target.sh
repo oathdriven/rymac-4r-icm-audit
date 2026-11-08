@@ -26,8 +26,9 @@ case "$D/" in "$T/"*) echo "copy-target: refusing, $D is inside the target $T"; 
 
 list="$(mktemp)"
 if git -C "$T" rev-parse --show-toplevel >/dev/null 2>&1; then
-  (cd "$T" && git ls-files) > "$list.all"
-  src="saved files (git)"
+  # 2026-11-02, 4R fix 22: new files not in the history yet came along too late on a re-audit, so the stranger walked twice.
+  (cd "$T" && git ls-files && git ls-files --others --exclude-standard) > "$list.all"
+  src="saved files (git), plus new files git does not ignore"
 else
   (cd "$T" && find . \( -name .git -o -name node_modules \) -prune -o -type f -print | sed 's#^\./##') > "$list.all"
   src="all files"
