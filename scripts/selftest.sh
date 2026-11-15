@@ -105,6 +105,15 @@ D="$W/scratch"
 out="$(bash "$HERE/copy-target.sh" "$B" "$D" 2>&1)"; rc=$?
 expect_exit "copy-target copies" "$rc" 0
 [ -f "$D/docs/a.md" ] && ok "copy-target copied a nested file" || bad "copy-target lost docs/a.md"
+# 2026-11-14, v1.5.4: a file left out for size is named, not only counted
+head -c 5000 /dev/zero > "$B/big-art.bin"
+out="$(bash "$HERE/copy-target.sh" "$B" "$W/scratch-small" 1 2>&1)"; rc=$?
+expect_has  "copy-target names a file it left out for size" "$out" "LEFT OUT"
+expect_has  "copy-target names big-art.bin" "$out" "big-art.bin"
+grep -q "big-art.bin" "$W/scratch-small-left-out.txt" 2>/dev/null && ok "copy-target writes the left out list beside the copy" || bad "copy-target wrote no left out list"
+[ -f "$W/scratch-small/big-art.bin" ] && bad "copy-target copied a file over the size limit" || ok "copy-target kept the big file out of the copy"
+[ -f "$W/scratch-small/scratch-small-left-out.txt" ] && bad "copy-target put the left out list inside the copy" || ok "copy-target kept the list out of the copy"
+rm -f "$B/big-art.bin"
 out="$(bash "$HERE/copy-target.sh" "$B" "$B/inside" 2>&1)"; rc=$?
 expect_exit "copy-target refuses a scratch inside the target" "$rc" 2
 [ -d "$B/inside" ] && bad "copy-target left a folder inside the target" || ok "copy-target left the target untouched"

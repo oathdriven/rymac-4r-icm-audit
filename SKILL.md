@@ -49,7 +49,9 @@ Run it first on a new machine.
    audits, use that folder and leave that folder out of every layer. Otherwise use a folder
    named `4r-audits/` beside the target, never inside the target.
 3. **Scratch copy:** `bash scripts/copy-target.sh <target> <scratch>` into the session's
-   temp or scratch folder. Layers 2 and 3 only ever touch the scratch copy.
+   temp or scratch folder. Layers 2 and 3 only ever touch the scratch copy. Every file the
+   copy left out for size is printed as a `LEFT OUT` line and listed in `<scratch>-left-out.txt`.
+   **The report names every 1 of them**, so the owner sees which files the stranger never saw.
 4. **Last audit:** if the results home holds an earlier record for this target, read the
    record. **Every fix it listed gets checked again**: fixed, still open, or worse. An open
    fix from last time stays on this report with its age. The change since last time is the

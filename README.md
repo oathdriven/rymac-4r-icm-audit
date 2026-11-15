@@ -74,9 +74,20 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`49 of 49 held` on this version).
+every line held (`54 of 54 held` on this version).
 
 ---
+
+## What changed in v1.5.4
+
+1 fix a customer asked for.
+
+- **The files left out for size get named, not just counted.** The throwaway copy skips any
+  file over 1 MB, so a folder of videos doesn't fill your disk. The report used to say only
+  how many got skipped. Now every skipped file is printed by name, the full list sits in
+  `<scratch>-left-out.txt` beside the copy, and the report names every 1. So if a big file
+  your AI depends on got skipped, you know which 1 the stranger never saw.
+- Self test: 54 of 54.
 
 ## What changed in v1.5.3
 

@@ -38,10 +38,24 @@ for extra in .claude/settings.json .claude/settings.local.json; do [ -f "$T/$ext
 # 1 pass of du over every listed file (portable on Linux, macOS and Git Bash), then keep the small ones
 (cd "$T" && tr '\n' '\0' < "$list.all" | xargs -0 du -k 2>/dev/null) \
   | awk -F'\t' -v max="$MAXKB" '$1 <= max { sub(/^[^\t]*\t/, ""); print }' > "$list"
-big=$(( $(sort -u "$list.all" | wc -l) - $(wc -l < "$list") ))
 (cd "$T" && tar -cf - -T "$list" 2>/dev/null) | (cd "$D" && tar -xf - 2>/dev/null)
 copied=$(find "$D" -type f | wc -l | tr -d ' ')
-rm -f "$list" "$list.all"
+
+# 2026-11-14, v1.5.4 (a member asked which files the audit checked): the files left out for size
+# get NAMED, not only counted. The full list goes beside the scratch copy, never inside the copy
+# (the stranger would read it) and never inside the target (the audit writes nothing there).
+left="$D-left-out.txt"
+sort -u "$list.all" > "$list.u"; sort -u "$list" > "$list.s"
+comm -23 "$list.u" "$list.s" | while IFS= read -r f; do
+  [ -f "$T/$f" ] && printf '%s KB\t%s\n' "$(du -k "$T/$f" 2>/dev/null | cut -f1)" "$f"
+done > "$left"
+big=$(wc -l < "$left" | tr -d ' ')
+rm -f "$list" "$list.all" "$list.u" "$list.s"
 echo "COPY    $copied files copied from the target's $src into $D"
 echo "        $big files over ${MAXKB} KB left out"
+if [ "$big" -gt 0 ]; then
+  head -n 100 "$left" | while IFS= read -r l; do echo "LEFT OUT  $l"; done
+  [ "$big" -gt 100 ] && echo "LEFT OUT  ... and $((big - 100)) more"
+  echo "        every file left out, by name: $left"
+fi
 exit 0
