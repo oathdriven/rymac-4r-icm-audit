@@ -52,7 +52,9 @@ Heaviest weight first. Inside the same weight, the bigger counted number first. 
 tie, the 1 the owner's own rules call hardest goes first. Number them 1 to the last.
 
 **The most important** are every Money fix, plus any fix that hit the owner or a customer for
-real in the last week. Name them at the top of the report in plain words, with why each 1
+real in the last week. Every `NEEDED  NOT IN THE COPY` line from the copy step goes in this block
+too, first, in plain words: "Your map sends your AI to this file, and the audit's copy never
+had the file." Say the file, its size and the map line that names the file. Name them at the top of the report in plain words, with why each 1
 matters. If there are none, say so.
 
 ## Step 4. The completeness check, before anything is published

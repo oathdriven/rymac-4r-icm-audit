@@ -2,6 +2,7 @@
 
 Target: `{{target path}}` · Scratch copy: {{files copied}} files, {{files left out}} left out
 Snapshot list: {{n}} IN with a fingerprint, {{n}} LEFT OUT for size, {{n}} LEFT OUT by an ignore rule · VERIFY: {{the line verify-snapshot.sh printed}}
+NEEDED (left out files the map names): {{n}} brought along, {{n}} NOT IN THE COPY: {{each file, its size, the map line, or "none"}}
 Examined: {{n}} files opened of {{n}} in the copy · WANTED: {{every file the reader looked for that the copy left out, or "none"}}
 Helpers: script runner on {{model}}, stranger on {{model}}, test runner on {{model}}
 Results home: `{{results home}}` (left out of every layer) · Last audit: {{date or "none, this is the baseline"}}

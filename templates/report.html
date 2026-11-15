@@ -263,9 +263,9 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
     <h2>What the audit saw</h2>
     <p class="lede">3 different claims, kept apart. {{N}} files were IN the copy, each with a fingerprint on the snapshot list. {{N}} were LEFT OUT, each with its reason. {{N}} were EXAMINED: opened by the stranger or the auditor (the reader's own account). Fingerprint check: {{the VERIFY line}}. Helpers ran on: {{script runner model}}, {{stranger model}}, {{test runner model}}.</p>
     <table>
-      <thead><tr><th>Left out</th><th>Size</th><th>Reason</th><th>Did the reader go looking for this file?</th></tr></thead>
+      <thead><tr><th>Left out</th><th>Size</th><th>Reason</th><th>Does the map name this file, and did the reader go looking for this file?</th></tr></thead>
       <tbody>
-        <tr><td style="text-align:left">{{path}}</td><td>{{KB}}</td><td>{{over the size limit / the ignore rule that matched}}</td><td style="text-align:left">{{no / WANTED: what the reader was trying to do}}</td></tr>
+        <tr><td style="text-align:left">{{path}}</td><td>{{KB}}</td><td>{{over the size limit / the ignore rule that matched}}</td><td style="text-align:left">{{no / NEEDED: named in the map at line N, brought along or NOT IN THE COPY / WANTED: what the reader was trying to do}}</td></tr>
         <tr><td style="text-align:left">{{every file left out for size, 1 row each, and 1 row per ignore rule}}</td><td></td><td></td><td></td></tr>
       </tbody>
     </table>

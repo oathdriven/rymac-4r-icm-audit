@@ -77,9 +77,24 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`83 of 83 held` on this version).
+every line held (`93 of 93 held` on this version).
 
 ---
+
+## What changed in v1.5.6
+
+1 change, from a customer's follow up question.
+
+- **A left out file your map names gets flagged first, and usually comes along.** The copy
+  skips files over 1 MB. But "not in the audit's copy" is not the same as "does not exist". If
+  your map (CLAUDE.md, AGENTS.md or CONTEXT.md at the top) points your AI at a file and that
+  file got left out, the stranger gets sent to a file the stranger never had, and reports the
+  file missing. So the copy step now checks every left out file against your map. A named file
+  up to 5 MB comes along anyway, marked `NEEDED  brought along` and marked in the snapshot
+  list. A named file over 5 MB stays out and prints `NEEDED  NOT IN THE COPY` at the top,
+  before the stranger starts, and the report puts that line in its most important block.
+  A big file your map never names is left out the same as before.
+- Self test: 93 of 93.
 
 ## What changed in v1.5.5
 

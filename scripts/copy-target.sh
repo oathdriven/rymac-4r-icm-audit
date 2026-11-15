@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # copy-target.sh - 4R audit setup. Makes the throwaway copy that layers 2 and 3 work in.
 #
-# Usage:  bash copy-target.sh <target folder> <scratch folder> [max KB per file, default 1024]
+# Usage:  bash copy-target.sh <target folder> <scratch folder> [max KB per file, default 1024] [max KB for a file the map names, default 5120]
 #
 # In a git repo, copies the files saved in the history (what the owner means by "the
 # workspace"). Anywhere else, copies every file except .git and node_modules. Files over
@@ -18,6 +18,7 @@ export GIT_OPTIONAL_LOCKS=0
 T="${1:?usage: bash copy-target.sh <target> <scratch> [max KB]}"
 D="${2:?usage: bash copy-target.sh <target> <scratch> [max KB]}"
 MAXKB="${3:-1024}"
+NEEDKB="${4:-5120}"
 [ -d "$T" ] || { echo "copy-target: no folder at $T"; exit 2; }
 T="$(cd "$T" && pwd)"
 mkdir -p "$D" || exit 2
@@ -38,6 +39,24 @@ for extra in .claude/settings.json .claude/settings.local.json; do [ -f "$T/$ext
 # 1 pass of du over every listed file (portable on Linux, macOS and Git Bash), then keep the small ones
 (cd "$T" && tr '\n' '\0' < "$list.all" | xargs -0 du -k 2>/dev/null) > "$list.du"
 awk -F'\t' -v max="$MAXKB" '$1 <= max { sub(/^[^\t]*\t/, ""); print }' "$list.du" > "$list"
+
+# 2026-11-14, v1.5.6 (a member asked: flag a left out file louder when another step depends on the file).
+# A file over the size limit that the MAP names (CLAUDE.md, AGENTS.md or CONTEXT.md at the top) is NEEDED:
+# the map sends the agent there, so the stranger would be told the file does not exist. A NEEDED file up to
+# the second limit comes along in the copy anyway. A NEEDED file over the second limit stays out and gets
+# flagged at the top, before the stranger starts.
+: > "$list.need"
+awk -F'\t' -v max="$MAXKB" '$1 > max' "$list.du" | while IFS="$(printf '\t')" read -r kb f; do
+  for ent in CLAUDE.md AGENTS.md CONTEXT.md; do
+    [ -f "$T/$ent" ] || continue
+    ln="$(grep -nF -- "$f" "$T/$ent" 2>/dev/null | head -n 1 | cut -d: -f1)"
+    if [ -n "$ln" ]; then
+      if [ "$kb" -le "$NEEDKB" ]; then printf 'BROUGHT\t%s\t%s\t%s line %s\n' "$kb" "$f" "$ent" "$ln"; else printf 'TOO BIG\t%s\t%s\t%s line %s\n' "$kb" "$f" "$ent" "$ln"; fi
+      break
+    fi
+  done
+done > "$list.need"
+awk -F'\t' '$1 == "BROUGHT" { print $3 }' "$list.need" >> "$list"
 (cd "$T" && tar -cf - -T "$list" 2>/dev/null) | (cd "$D" && tar -xf - 2>/dev/null)
 copied=$(find "$D" -type f | wc -l | tr -d ' ')
 
@@ -63,12 +82,16 @@ snap="$D-snapshot.tsv"
   printf '# status\treason\tKB\tsha256\tpath\n'
   # IN: fingerprint the copy's bytes, which are the target's bytes at copy time
   (cd "$D" && tr '\n' '\0' < "$list.s" | xargs -0 $HASH 2>/dev/null) \
-    | awk -v dufile="$list.du" 'BEGIN { while ((getline l < dufile) > 0) { i = index(l, "\t"); kb[substr(l, i + 1)] = substr(l, 1, i - 1) } }
-        { if (substr($0, 1, 1) == sprintf("%c", 92)) $0 = substr($0, 2); h = substr($0, 1, 64); f = substr($0, 67); printf "IN\tcopied\t%s\t%s\t%s\n", kb[f], h, f }'
+    | awk -v dufile="$list.du" -v needfile="$list.need" 'BEGIN { while ((getline l < dufile) > 0) { i = index(l, "\t"); kb[substr(l, i + 1)] = substr(l, 1, i - 1) }
+          while ((getline l < needfile) > 0) { split(l, c, "\t"); if (c[1] == "BROUGHT") need[c[3]] = c[4] } }
+        { if (substr($0, 1, 1) == sprintf("%c", 92)) $0 = substr($0, 2); h = substr($0, 1, 64); f = substr($0, 67); r = (f in need) ? "copied, over the limit, named in " need[f] : "copied"; printf "IN\t%s\t%s\t%s\t%s\n", r, kb[f], h, f }'
   # LEFT OUT for size: fingerprint the target's bytes, read only
   while IFS="$(printf '\t')" read -r kb f; do
     h="$($HASH "$T/$f" 2>/dev/null | tr -d '\134' | cut -c1-64)"
-    printf 'LEFT OUT\tover %s KB\t%s\t%s\t%s\n' "$MAXKB" "${kb% KB}" "$h" "$f"
+    why="over $MAXKB KB"
+    nm="$(awk -F'\t' -v f="$f" '$1 == "TOO BIG" && $3 == f { print $4 }' "$list.need")"
+    [ -n "$nm" ] && why="over $NEEDKB KB, NEEDED: named in $nm"
+    printf 'LEFT OUT\t%s\t%s\t%s\t%s\n' "$why" "${kb% KB}" "$h" "$f"
   done < "$left"
   if git -C "$T" rev-parse --show-toplevel >/dev/null 2>&1; then
     # LEFT OUT by a git ignore rule: 1 line per RULE, with how many paths the rule left out and the
@@ -86,8 +109,17 @@ snap="$D-snapshot.tsv"
   fi
 } > "$snap"
 nin=$(grep -c '^IN' "$snap"); nig=$(grep -c 'git ignores this path\|never copied' "$snap")
-rm -f "$list" "$list.all" "$list.u" "$list.s" "$list.ig" "$list.du"
 echo "COPY    $copied files copied from the target's $src into $D"
+nb=$(grep -c '^BROUGHT' "$list.need"); nt=$(grep -c '^TOO BIG' "$list.need")
+if [ "$nt" -gt 0 ]; then
+  echo "NEEDED  $nt files your map names are NOT in the copy. The stranger will be sent to them and will not find them:"
+  awk -F'\t' '$1 == "TOO BIG" { printf "NEEDED  NOT IN THE COPY  %s KB  %s  (named in %s)\n", $2, $3, $4 }' "$list.need"
+fi
+if [ "$nb" -gt 0 ]; then
+  echo "NEEDED  $nb files over ${MAXKB} KB came along anyway, because your map names them (up to ${NEEDKB} KB):"
+  awk -F'\t' '$1 == "BROUGHT" { printf "NEEDED  brought along  %s KB  %s  (named in %s)\n", $2, $3, $4 }' "$list.need"
+fi
+rm -f "$list" "$list.all" "$list.u" "$list.s" "$list.ig" "$list.du" "$list.need"
 echo "        $big files over ${MAXKB} KB left out"
 if [ "$big" -gt 0 ]; then
   head -n 100 "$left" | while IFS= read -r l; do echo "LEFT OUT  $l"; done

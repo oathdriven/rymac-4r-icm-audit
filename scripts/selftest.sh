@@ -151,6 +151,23 @@ out="$(bash "$HERE/copy-target.sh" "$G" "$W/gitted-copy2" 2>&1)"
 [ "$(grep -c '[.]log' "$W/gitted-copy2-snapshot.tsv" 2>/dev/null)" = "1" ] && ok "snapshot list gives 3 files under 1 ignore rule 1 line" || bad "snapshot list gave 1 ignore rule more than 1 line"
 grep -q "(and 2 more paths under this rule)$" "$W/gitted-copy2-snapshot.tsv" 2>/dev/null && ok "snapshot list counts the paths under an ignore rule" || bad "snapshot list lost the count under an ignore rule"
 [ -f "$W/gitted-copy/vendor/deep/v1.js" ] && bad "copy-target copied an ignored file" || ok "copy-target kept the ignored folder out of the copy"
+# 2026-11-14, v1.5.6: a left out file the map names is NEEDED. Up to the second limit the file comes along.
+M="$W/needed"; mkdir -p "$M/logs" "$M/media"
+printf '# Needed\n\nWrite the log in `logs/daily.md`. The intro film is `media/film.bin`.\n' > "$M/CLAUDE.md"
+head -c 5000 /dev/zero > "$M/logs/daily.md"; head -c 30000 /dev/zero > "$M/media/film.bin"; head -c 5000 /dev/zero > "$M/media/unnamed.bin"
+out="$(bash "$HERE/copy-target.sh" "$M" "$W/needed-copy" 1 16 2>&1)"
+NS="$W/needed-copy-snapshot.tsv"
+[ -f "$W/needed-copy/logs/daily.md" ] && ok "copy-target brings along a big file the map names" || bad "copy-target left out a file the map names, under the second limit"
+expect_has  "copy-target says the named file came along" "$out" "NEEDED  brought along"
+grep -q "^IN	copied, over the limit, named in CLAUDE.md line 3	[0-9]*	[0-9a-f]\{64\}	logs/daily.md$" "$NS" 2>/dev/null && ok "snapshot list marks a file that came along because the map names the file" || bad "snapshot list does not mark the brought along file"
+[ -f "$W/needed-copy/media/film.bin" ] && bad "copy-target copied a named file over the second limit" || ok "copy-target keeps a named file over the second limit out"
+expect_has  "copy-target flags a named file that is not in the copy" "$out" "NEEDED  NOT IN THE COPY"
+expect_has  "copy-target names the file and the map line" "$out" "media/film.bin  (named in CLAUDE.md line 3)"
+grep -q "^LEFT OUT	over 16 KB, NEEDED: named in CLAUDE.md line 3	[0-9]*	[0-9a-f]\{64\}	media/film.bin$" "$NS" 2>/dev/null && ok "snapshot list says the left out file is NEEDED" || bad "snapshot list does not say film.bin is NEEDED"
+[ -f "$W/needed-copy/media/unnamed.bin" ] && bad "copy-target brought along a big file the map does not name" || ok "copy-target leaves out a big file the map does not name"
+printf '%s' "$out" | grep "NEEDED" | grep -q "unnamed.bin" && bad "copy-target called an unnamed file NEEDED" || ok "copy-target stays quiet about a big file the map does not name"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/needed-copy" "$NS" in 2>&1)"; rc=$?
+expect_exit "verify-snapshot passes a copy that holds a brought along file" "$rc" 0
 # the examined list: in the copy and opened by the auditor are 2 different claims
 printf 'CLAUDE.md\n./docs/a.md\nbig-art.bin\nno-such-file.md\nCLAUDE.md\n' > "$W/opened.txt"
 out="$(bash "$HERE/examined.sh" "$SNAP" "$W/opened.txt" 2>&1)"; rc=$?

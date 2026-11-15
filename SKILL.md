@@ -77,6 +77,13 @@ model by default. The report says which model each helper ran on.
    rule that matched). Anybody can re-check the list on their own machine:
    `bash scripts/verify-snapshot.sh <folder> <scratch>-snapshot.tsv`. Run that check once on
    the copy (add the word `in`) before layer 2 and put its VERIFY line in the report.
+   **A left out file the map names is NEEDED.** The copy step checks every file over the size
+   limit against the entry files (CLAUDE.md, AGENTS.md, CONTEXT.md at the top). A named file up
+   to a second limit (5 MB) comes along in the copy anyway and prints as `NEEDED  brought along`.
+   A named file over the second limit prints as `NEEDED  NOT IN THE COPY`. That line goes at
+   the top of the report, in the most important block, before anything the stranger found:
+   the map sends the agent to a file the stranger never had. Read every NEEDED line before
+   layer 2 starts, so a stuck point caused by the copy never gets blamed on the workspace.
 4. **Last audit:** if the results home holds an earlier record for this target, read the
    record. **Every fix it listed gets checked again**: fixed, still open, or worse. An open
    fix from last time stays on this report with its age. The change since last time is the
