@@ -113,6 +113,60 @@ expect_has  "copy-target names big-art.bin" "$out" "big-art.bin"
 grep -q "big-art.bin" "$W/scratch-small-left-out.txt" 2>/dev/null && ok "copy-target writes the left out list beside the copy" || bad "copy-target wrote no left out list"
 [ -f "$W/scratch-small/big-art.bin" ] && bad "copy-target copied a file over the size limit" || ok "copy-target kept the big file out of the copy"
 [ -f "$W/scratch-small/scratch-small-left-out.txt" ] && bad "copy-target put the left out list inside the copy" || ok "copy-target kept the list out of the copy"
+# 2026-11-14, v1.5.5: the snapshot list (a fingerprint per file, a reason per file left out)
+SNAP="$W/scratch-small-snapshot.tsv"
+[ -f "$SNAP" ] && ok "copy-target writes the snapshot list beside the copy" || bad "copy-target wrote no snapshot list"
+[ -f "$W/scratch-small/scratch-small-snapshot.tsv" ] && bad "copy-target put the snapshot list inside the copy" || ok "copy-target kept the snapshot list out of the copy"
+grep -q "^IN	copied	[0-9]*	[0-9a-f]\{64\}	CLAUDE.md$" "$SNAP" 2>/dev/null && ok "snapshot list gives an IN file a 64 character fingerprint" || bad "snapshot list has no fingerprint line for CLAUDE.md"
+grep -q "^LEFT OUT	over 1 KB	[0-9]*	[0-9a-f]\{64\}	big-art.bin$" "$SNAP" 2>/dev/null && ok "snapshot list gives the left out file its reason and fingerprint" || bad "snapshot list has no reason line for big-art.bin"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$SNAP" in 2>&1)"; rc=$?
+expect_exit "verify-snapshot passes the untouched copy" "$rc" 0
+out="$(bash "$HERE/verify-snapshot.sh" "$B" "$SNAP" 2>&1)"; rc=$?
+expect_exit "verify-snapshot passes the untouched target, left out files too" "$rc" 0
+cp "$W/scratch-small/CLAUDE.md" "$W/claude.keep"; printf 'x\n' >> "$W/scratch-small/CLAUDE.md"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$SNAP" in 2>&1)"; rc=$?
+expect_exit "verify-snapshot fires on 1 changed file" "$rc" 1
+expect_has  "verify-snapshot names the changed file" "$out" "CHANGED  CLAUDE.md"
+cp "$W/claude.keep" "$W/scratch-small/CLAUDE.md"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$SNAP" in 2>&1)"; rc=$?
+expect_exit "verify-snapshot goes quiet once the file is put back" "$rc" 0
+mv "$W/scratch-small/docs/a.md" "$W/a.keep"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$SNAP" in 2>&1)"; rc=$?
+expect_exit "verify-snapshot fires on 1 missing file" "$rc" 1
+expect_has  "verify-snapshot names the missing file" "$out" "MISSING  docs/a.md"
+mv "$W/a.keep" "$W/scratch-small/docs/a.md"
+printf '# empty\n' > "$W/empty-snapshot.tsv"
+out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$W/empty-snapshot.tsv" 2>&1)"; rc=$?
+expect_exit "verify-snapshot refuses a list with no fingerprints (0 of 0 is not a pass)" "$rc" 2
+# a git folder: an ignore rule gets 1 line with the rule, never every file inside
+G="$W/gitted"; mkdir -p "$G/keep" "$G/vendor/deep"
+printf 'vendor/\n' > "$G/.gitignore"; printf 'k\n' > "$G/keep/k.md"; printf 'v\n' > "$G/vendor/deep/v1.js"; printf 'v\n' > "$G/vendor/deep/v2.js"
+(cd "$G" && git init -q . 2>/dev/null && git add -A 2>/dev/null && git -c user.name=t -c user.email=t@t commit -q -m t 2>/dev/null)
+out="$(bash "$HERE/copy-target.sh" "$G" "$W/gitted-copy" 2>&1)"
+GS="$W/gitted-copy-snapshot.tsv"
+grep -q "^LEFT OUT	git ignores this path (.gitignore:1:vendor/)	-	-	vendor/$" "$GS" 2>/dev/null && ok "snapshot list names the ignore rule that left a folder out" || bad "snapshot list has no ignore rule line for vendor/"
+[ "$(grep -c 'vendor' "$GS" 2>/dev/null)" = "1" ] && ok "snapshot list gives an ignored folder 1 line, not 1 per file" || bad "snapshot list listed the files inside an ignored folder"
+printf '*.log\n' >> "$G/.gitignore"; printf 'l\n' > "$G/keep/one.log"; printf 'l\n' > "$G/keep/two.log"; printf 'l\n' > "$G/three.log"
+out="$(bash "$HERE/copy-target.sh" "$G" "$W/gitted-copy2" 2>&1)"
+[ "$(grep -c '[.]log' "$W/gitted-copy2-snapshot.tsv" 2>/dev/null)" = "1" ] && ok "snapshot list gives 3 files under 1 ignore rule 1 line" || bad "snapshot list gave 1 ignore rule more than 1 line"
+grep -q "(and 2 more paths under this rule)$" "$W/gitted-copy2-snapshot.tsv" 2>/dev/null && ok "snapshot list counts the paths under an ignore rule" || bad "snapshot list lost the count under an ignore rule"
+[ -f "$W/gitted-copy/vendor/deep/v1.js" ] && bad "copy-target copied an ignored file" || ok "copy-target kept the ignored folder out of the copy"
+# the examined list: in the copy and opened by the auditor are 2 different claims
+printf 'CLAUDE.md\n./docs/a.md\nbig-art.bin\nno-such-file.md\nCLAUDE.md\n' > "$W/opened.txt"
+out="$(bash "$HERE/examined.sh" "$SNAP" "$W/opened.txt" 2>&1)"; rc=$?
+expect_exit "examined writes the examined list" "$rc" 0
+expect_has  "examined counts the 2 opened files once each" "$out" "EXAMINED 2 files opened"
+expect_has  "examined names a file the reader wanted that the copy left out" "$out" "WANTED   big-art.bin (left out: over 1 KB)"
+grep -q "	UNKNOWN	not on the snapshot list	no-such-file.md$" "$W/scratch-small-examined.tsv" 2>/dev/null && ok "examined marks a path that is not on the snapshot list" || bad "examined lost the unknown path"
+grep -q "^1	EXAMINED	[0-9a-f]\{64\}	CLAUDE.md$" "$W/scratch-small-examined.tsv" 2>/dev/null && ok "examined carries the snapshot fingerprint for an opened file" || bad "examined has no fingerprint for CLAUDE.md"
+out="$(bash "$HERE/examined.sh" "$SNAP" 2>&1)"; rc=$?
+expect_exit "examined refuses to run with no opened list" "$rc" 2
+# the helpers: every helper file names its model, so a run never falls onto the owner's biggest model
+A="$HERE/../agents"
+for h in 4r-scripts 4r-stranger 4r-replay; do
+  grep -q "^model: \(haiku\|sonnet\)$" "$A/$h.md" 2>/dev/null && ok "helper $h names its model" || bad "helper $h has no model line"
+  grep -q "agents/$h.md" "$HERE/../SKILL.md" 2>/dev/null && ok "SKILL.md names helper $h" || bad "SKILL.md does not name helper $h"
+done
 rm -f "$B/big-art.bin"
 out="$(bash "$HERE/copy-target.sh" "$B" "$B/inside" 2>&1)"; rc=$?
 expect_exit "copy-target refuses a scratch inside the target" "$rc" 2

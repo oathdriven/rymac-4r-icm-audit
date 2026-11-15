@@ -50,6 +50,9 @@ No made up score out of 100. Only numbers that were counted.
    - Windows: `C:\Users\YOUR-NAME\.claude\skills\`
    You should end up with a folder called `rymac-4r-icm-audit` inside `skills`.
 3. Restart Claude Code.
+   The first run copies 3 small helper files from the audit's `agents` folder into your
+   `.claude/agents` folder. Each helper has its model written in, so the audit's grunt work
+   never runs on your biggest model.
 4. Open Claude Code in the folder you want audited and type:
 
 **"am I crazy?"**
@@ -74,9 +77,39 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`54 of 54 held` on this version).
+every line held (`83 of 83 held` on this version).
 
 ---
+
+## What changed in v1.5.5
+
+6 changes, every 1 from a question somebody in the community asked.
+
+- **The snapshot list.** The copy step now writes 1 list of every file the audit had and
+  every file the audit did not have. Each file carries a fingerprint (SHA-256, a code built
+  from the file's exact bytes, so 1 changed letter changes the code). Each file left out
+  carries its reason: over the size limit, or the ignore rule that matched. An ignore rule
+  gets 1 line with a count, never 1 line per file.
+- **Anybody can check the list.** `bash scripts/verify-snapshot.sh <folder> <the snapshot list>`
+  builds every fingerprint again on your own machine and prints which files match, which
+  changed and which are missing. So you never have to trust the report's totals.
+- **The examined list.** A file being in the copy and a file being opened by the auditor are
+  2 different claims. The stranger now lists every file the stranger opened, and the report
+  gives both counts apart. A file the stranger went looking for that the copy left out gets
+  named, so a miss caused by the copy never gets blamed on your folder.
+- **Every skip rule gets tested.** A check that skips "finished" work can hide the exact
+  mistake the skip was meant to save time on. Layer 3 now plants 1 case inside every skip.
+- **"Caught 6 of 6 planted shapes", never "proven".** A planted mistake proves a check catches
+  that shape. Nothing more. The report says the count and names the shapes. And every claim
+  the audit checks now names where the answer was read from: the live page, the online copy,
+  the file.
+- **The helpers run on smaller models.** The audit has 1 boss (your main chat, on whatever
+  model you picked) and 3 helpers. Each helper is a file in `agents/` with its model written
+  in: the script runner on Haiku, the stranger and the test runner on Sonnet. A run on the
+  biggest model used to put every helper on the biggest model too, and 1 audit could eat most
+  of a week's usage. A stranger on a mid size model is also the better test: a map only the
+  biggest model can follow is a map that does not work.
+- Self test: 83 of 83.
 
 ## What changed in v1.5.4
 

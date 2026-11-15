@@ -33,7 +33,18 @@ apart from the replays. For each promise that gets new tests:
 5. **Run the guard on all of them. Record 4 things:** did the guard fire on the mistake, did the
    guard stay quiet on the clean case, the exact line the guard printed, and the exit code.
 
-Score each guard with 1 word:
+6. **Plant 1 case inside every skip.** Read the guard for every rule that lets something
+   through without a check: a "skip when", an early exit, an allow list, a "this kind of file
+   is fine". For each 1, plant a mistake that lands inside the skip. A skip that hides a real
+   mistake is a finding. A guard once skipped every video with a public link on the idea that
+   a published video is finished, and called a video 4 stages behind clean.
+
+Use the test runner helper, `4r-replay` (`agents/4r-replay.md`, sonnet), for the replay and
+the planting. If that helper is not available, set the model to sonnet on the call.
+
+Score each guard with 1 word, and always with its count: "caught 6 of 6 planted shapes",
+never the bare word. A planted mistake proves the guard catches that shape. A planted mistake
+does not prove the guard catches every shape, and the report never says so:
 
 | Word | Means |
 |---|---|
@@ -58,6 +69,11 @@ claim describes:
 
 A claim that was true once and is not true now is the most common kind of wrong in a
 workspace, because nobody re-reads a line that says done.
+
+**Every claim checked names its source**: where the answer was read from. "True, read off the
+live page." "False, the online copy's release list." "True, 119 files counted in the folder."
+A claim checked against the same note that made the claim has not been checked. Read the
+answer from a different place than the place that wrote the claim.
 
 Never check a claim by touching something live (a website form, a payment, an email). Read
 only. If a claim can only be checked live, list the claim under "could not see".

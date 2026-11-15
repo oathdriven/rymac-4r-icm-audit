@@ -244,7 +244,7 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
 
   <div class="tiles">
     <div class="tile"><span class="k">Routes that resolve</span><span class="v">{{N of M}}</span><span class="n">{{note}}</span></div>
-    <div class="tile"><span class="k">Guards proven</span><span class="v blue">{{N of M}}</span><span class="n">{{note}}</span></div>
+    <div class="tile"><span class="k">Planted shapes caught</span><span class="v blue">{{N of M}}</span><span class="n">{{note}}</span></div>
     <div class="tile"><span class="k">Stranger's job</span><span class="v">{{done / partly / no}}</span><span class="n">{{N stuck points}}</span></div>
     <div class="tile"><span class="k">Claims still true</span><span class="v">{{N of M}}</span><span class="n">{{note}}</span></div>
     <div class="tile"><span class="k">Work at risk</span><span class="v">{{N}}</span><span class="n">{{unsaved folders, keys in files}}</span></div>
@@ -258,6 +258,18 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
       <li><span class="x">{{N}}</span><span class="t"><b>{{every Money fix, plus any fix that hit the owner or a customer for real this week}}</b> {{WHY}}<span>{{file}}:{{line}}</span></span></li>
     </ul>
   </div>
+
+  <section>
+    <h2>What the audit saw</h2>
+    <p class="lede">3 different claims, kept apart. {{N}} files were IN the copy, each with a fingerprint on the snapshot list. {{N}} were LEFT OUT, each with its reason. {{N}} were EXAMINED: opened by the stranger or the auditor (the reader's own account). Fingerprint check: {{the VERIFY line}}. Helpers ran on: {{script runner model}}, {{stranger model}}, {{test runner model}}.</p>
+    <table>
+      <thead><tr><th>Left out</th><th>Size</th><th>Reason</th><th>Did the reader go looking for this file?</th></tr></thead>
+      <tbody>
+        <tr><td style="text-align:left">{{path}}</td><td>{{KB}}</td><td>{{over the size limit / the ignore rule that matched}}</td><td style="text-align:left">{{no / WANTED: what the reader was trying to do}}</td></tr>
+        <tr><td style="text-align:left">{{every file left out for size, 1 row each, and 1 row per ignore rule}}</td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </section>
 
   <section>
     <h2>Every fix, measured and ranked ({{N}} in all, no cap)</h2>
@@ -287,7 +299,7 @@ a:focus-visible,.col:focus-visible{outline:2px solid var(--scarlet);outline-offs
     <table>
       <thead><tr><th>Promise</th><th>Guard</th><th>On the mistake</th><th>On the clean case</th><th>Word</th></tr></thead>
       <tbody>
-        <tr><td>{{promise}}</td><td style="text-align:left">{{guard or none}}</td><td>{{fired / quiet}}</td><td>{{passed / fired}}</td><td>{{proven / blind / jumpy / missing}}</td></tr>
+        <tr><td>{{promise}}</td><td style="text-align:left">{{guard or none}}</td><td>{{fired / quiet}}</td><td>{{passed / fired}}</td><td>{{caught N of N shapes / blind / jumpy / missing}}</td></tr>
       </tbody>
     </table>
     <p class="lede" style="margin-top:14px">{{the 3 claims checked, each still true or not}}</p>

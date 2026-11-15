@@ -71,9 +71,16 @@ If the counts do not match, the report is not done.
 1. **The verdict, 1 sentence.** What works, what does not, in plain words.
 2. **The most important.** The fixes from step 3, each with why it matters.
 3. **The counts.** Only numbers that were counted: fixes found by weight, routes that
-   resolve, guards proven out of guards tested, places the stranger got stuck, keys found,
+   resolve, planted shapes caught out of planted shapes (never "guards proven"), places the stranger got stuck, keys found,
    folders unsaved, claims still true out of claims checked, open fixes from last time.
-4. **Every fix, ranked.** 1 row each: the rank, the fix, who it hits, how much, the weight,
+4. **What the audit saw.** 3 counts, kept apart because they are 3 different claims: files IN
+   the copy (each with a fingerprint on the snapshot list), files LEFT OUT (each with its
+   reason), and files EXAMINED (opened by the stranger or the auditor). Under them: the VERIFY
+   line from `verify-snapshot.sh`, every file left out for size by name, every ignore rule that
+   left a folder out, and every WANTED file (the reader looked for the file and the copy never
+   held the file). Say which model each helper ran on. Say that the examined list is the
+   reader's own account.
+4b. **Every fix, ranked.** 1 row each: the rank, the fix, who it hits, how much, the weight,
    the file and line. All of them.
 5. **Layer by layer:** what Read found, what Run found (with the stranger's own words for
    each stuck point), what Reality proved (the guard table).

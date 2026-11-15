@@ -1,6 +1,9 @@
 # 4R audit: {{target name}}, {{YYYY-MM-DD}}
 
 Target: `{{target path}}` · Scratch copy: {{files copied}} files, {{files left out}} left out
+Snapshot list: {{n}} IN with a fingerprint, {{n}} LEFT OUT for size, {{n}} LEFT OUT by an ignore rule · VERIFY: {{the line verify-snapshot.sh printed}}
+Examined: {{n}} files opened of {{n}} in the copy · WANTED: {{every file the reader looked for that the copy left out, or "none"}}
+Helpers: script runner on {{model}}, stranger on {{model}}, test runner on {{model}}
 Results home: `{{results home}}` (left out of every layer) · Last audit: {{date or "none, this is the baseline"}}
 
 ## The verdict
@@ -18,6 +21,7 @@ Results home: `{{results home}}` (left out of every layer) · Last audit: {{date
 | Folders with their own save history at risk | {{n}} | |
 | Key shaped strings / settings files with keys | {{n}} / {{n}} | |
 | Saved tests replayed / still held | {{n}} / {{n}} | |
+| Skip rules found inside guards / a planted case got through | {{n}} / {{n}} | |
 | New tests this run (only where something changed) / found a hole | {{n}} / {{n}} | |
 | Stranger's job done | {{yes, partly, no}} | |
 | Files the stranger read before knowing where to go | {{n}} | |
@@ -56,7 +60,7 @@ Job: {{the job, in the owner's words}} · Input: {{real or made up}}
 ## Layer 3, REALITY
 | Promise | Guard | Planted mistake | Clean case | Word |
 |---|---|---|---|---|
-| {{promise}} | {{guard or none}} | {{fired / quiet}} | {{passed / fired}} | {{proven, blind, jumpy, missing}} |
+| {{promise}} | {{guard or none}} | {{fired / quiet}} | {{passed / fired}} | {{caught N of N planted shapes, each shape named; or blind, jumpy, missing}} |
 
 Claims checked:
 {{claim, where the claim sits, what was checked, still true or not}}

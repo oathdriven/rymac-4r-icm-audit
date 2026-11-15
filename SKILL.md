@@ -25,8 +25,27 @@ Supporting files, read each 1 when its layer starts:
 
 Scripts, run them, do not read them: `scripts/routes.sh`, `scripts/nested-repos.sh`,
 `scripts/secrets.sh`, `scripts/placeholders.sh`, `scripts/guards.sh`, `scripts/size.sh`,
-`scripts/copy-target.sh`. `scripts/selftest.sh` proves every script on planted cases.
-Run it first on a new machine.
+`scripts/copy-target.sh`, `scripts/examined.sh`, `scripts/verify-snapshot.sh`.
+`scripts/selftest.sh` proves every script on planted cases. Run the self-test first on a new machine.
+
+## The helpers, and the model each 1 runs on
+
+The audit has 1 boss and 3 helpers. The boss is the session the owner is talking to: the boss
+reads the results, ranks the fixes and writes the report, on whatever model the owner picked.
+The helpers do step by step work that a smaller model does fine, so a run never eats the
+owner's usage on the biggest model.
+
+| Helper | File | Model | Job |
+|---|---|---|---|
+| the script runner | `agents/4r-scripts.md` | haiku | runs the layer 1 scripts, hands back their output |
+| the stranger | `agents/4r-stranger.md` | sonnet | layer 2, the cold walk |
+| the test runner | `agents/4r-replay.md` | sonnet | layer 3, replays and plants tests |
+
+Before layer 1, copy the 3 files in `agents/` into the owner's `~/.claude/agents/` folder if
+they are not there (they are the audit's own files, never the target's). Start each helper by
+its name. If a helper's name is not available in this session, start a general helper and
+**set its model on the call** to the model in the table. A helper never runs on the boss's
+model by default. The report says which model each helper ran on.
 
 ## The 4 promises this audit keeps
 
@@ -52,6 +71,12 @@ Run it first on a new machine.
    temp or scratch folder. Layers 2 and 3 only ever touch the scratch copy. Every file the
    copy left out for size is printed as a `LEFT OUT` line and listed in `<scratch>-left-out.txt`.
    **The report names every 1 of them**, so the owner sees which files the stranger never saw.
+   The copy step also writes the **snapshot list**, `<scratch>-snapshot.tsv`: 1 line per file
+   with its fingerprint (SHA-256, a code built from the file's exact bytes), marked IN or
+   LEFT OUT, and every LEFT OUT line carries its reason (over the size limit, or the git ignore
+   rule that matched). Anybody can re-check the list on their own machine:
+   `bash scripts/verify-snapshot.sh <folder> <scratch>-snapshot.tsv`. Run that check once on
+   the copy (add the word `in`) before layer 2 and put its VERIFY line in the report.
 4. **Last audit:** if the results home holds an earlier record for this target, read the
    record. **Every fix it listed gets checked again**: fixed, still open, or worse. An open
    fix from last time stays on this report with its age. The change since last time is the
@@ -65,7 +90,10 @@ Run it first on a new machine.
 - [ ] **2. RUN.** Pick 1 real job the workspace exists to do. Hand the scratch copy and the
       job to a fresh agent with the prompt in `references/run.md`. Record whether the job got
       done, how many files the agent read before knowing where to go, and every place the
-      agent got stuck, each with file and line. Check each stuck point yourself.
+      agent got stuck, each with file and line. Check each stuck point yourself. Save the
+      stranger's OPENED list and run `bash scripts/examined.sh <scratch>-snapshot.tsv <opened.txt>`.
+      **In the copy and opened by the auditor are 2 different claims.** The report gives both
+      counts apart, and names every file the stranger went looking for that the copy left out.
 - [ ] **3. REALITY.** For **every** promise from layer 1 question 3, plant 1 mistake the guard
       should catch and 1 clean case the guard should pass, in the scratch copy or on a copy of
       the guard's input. A promise with no guard gets its mistake planted too. Then check
@@ -89,20 +117,30 @@ Run it first on a new machine.
 2. **A rule held only by a sentence is a finding, even when everyone obeys the rule.** A
    sentence works until the day the agent forgets the sentence. A hook that only reminds is
    still a sentence.
-3. **A guard that exists is not a guard that works.** Only a planted mistake proves a guard.
+3. **A guard that exists is not a guard that works.** Only a planted mistake proves a guard,
+   and a planted mistake proves only its own shape. The report never calls a guard proven in
+   general. The report says "caught N of N planted shapes" and names the shapes (a member's AI
+   made this point, v1.5.5). Every skip rule inside a guard (a "skip when", an early exit, an
+   allow list) gets 1 planted case that lands inside the skip. Every claim checked names the
+   source the answer was read from: the live page, the online copy, the file.
    **Every planted test is saved and replayed on every later run**, so before and after
    always compare the SAME tests. New shapes get planted only for a promise with no saved
    tests yet, a guard file that changed since the last record, or a hole the owner names.
-   A run that invents a harder test and scores it against an easier old 1 makes a
+   His words, 2026-10-05: "people keep hitting me up with just ongoing fucking reports of
+   new shit." A run that invents a harder test and scores it against an easier old 1 makes a
    working guard look broken, and the owner looks bad to his own people.
 4. **When torn between 2 readings, take the harsher 1 and say you were torn.**
 5. **Write for the owner, not for a builder.** Plain words a 9th grader follows. Any
    technical word gets explained in the same sentence. Numbers as digits.
 6. **Name what the audit could not see**: a folder too big to copy, a guard that needs a paid
    service, a job the workspace cannot do without a person.
-7. **Never fix during the audit.** Fixes come after the report, in the fix pass, followed by
+7. **Sweep every file the buyer receives for his voice laws, byte for byte**: "sold" in his voice (closed, never sold), em dashes, "whole", his personal email. 2026-09-30: "This is the shape my $30,000 offer sold on." survived 4 audits of a paid zip. His words: "I THOUGHT YOU AUDITED THAT FUCKING FILE 4 TIMES?" A voice law broken in a paid file is a finding with its file and line.
+8. **Never fix during the audit.** Fixes come after the report, in the fix pass, followed by
    a re-audit so each change is measured.
-8. **Show every finding in 1 report, measured and ranked. Never only 3.** A capped list makes the owner rerun the audit to find what this run
+9. **Show every finding in 1 report, measured and ranked. Never only 3.** His words,
+   2026-10-04: "It should show ALL things found and rank them in importance. And let them fix
+   all things." and "it had my VIP running 11 fucking audits because it only found and
+   reported 3 at a time." A capped list makes the owner rerun the audit to find what this run
    already saw. Every finding from every layer becomes a numbered fix with its measurements,
    its file and its line. The most important are named first. Nothing found gets held back.
 
