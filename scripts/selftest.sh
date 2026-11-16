@@ -106,8 +106,9 @@ out="$(bash "$HERE/copy-target.sh" "$B" "$D" 2>&1)"; rc=$?
 expect_exit "copy-target copies" "$rc" 0
 [ -f "$D/docs/a.md" ] && ok "copy-target copied a nested file" || bad "copy-target lost docs/a.md"
 # 2026-11-14, v1.5.4: a file left out for size is named, not only counted
-head -c 5000 /dev/zero > "$B/big-art.bin"
-out="$(bash "$HERE/copy-target.sh" "$B" "$W/scratch-small" 1 2>&1)"; rc=$?
+# 2026-11-16 (a Mac member found it): a Mac counts every file as at least 4 KB on the disk, so the limit here is 4 KB and the big file is 9000 bytes.
+head -c 9000 /dev/zero > "$B/big-art.bin"
+out="$(bash "$HERE/copy-target.sh" "$B" "$W/scratch-small" 4 2>&1)"; rc=$?
 expect_has  "copy-target names a file it left out for size" "$out" "LEFT OUT"
 expect_has  "copy-target names big-art.bin" "$out" "big-art.bin"
 grep -q "big-art.bin" "$W/scratch-small-left-out.txt" 2>/dev/null && ok "copy-target writes the left out list beside the copy" || bad "copy-target wrote no left out list"
@@ -118,7 +119,7 @@ SNAP="$W/scratch-small-snapshot.tsv"
 [ -f "$SNAP" ] && ok "copy-target writes the snapshot list beside the copy" || bad "copy-target wrote no snapshot list"
 [ -f "$W/scratch-small/scratch-small-snapshot.tsv" ] && bad "copy-target put the snapshot list inside the copy" || ok "copy-target kept the snapshot list out of the copy"
 grep -q "^IN	copied	[0-9]*	[0-9a-f]\{64\}	CLAUDE.md$" "$SNAP" 2>/dev/null && ok "snapshot list gives an IN file a 64 character fingerprint" || bad "snapshot list has no fingerprint line for CLAUDE.md"
-grep -q "^LEFT OUT	over 1 KB	[0-9]*	[0-9a-f]\{64\}	big-art.bin$" "$SNAP" 2>/dev/null && ok "snapshot list gives the left out file its reason and fingerprint" || bad "snapshot list has no reason line for big-art.bin"
+grep -q "^LEFT OUT	over 4 KB	[0-9]*	[0-9a-f]\{64\}	big-art.bin$" "$SNAP" 2>/dev/null && ok "snapshot list gives the left out file its reason and fingerprint" || bad "snapshot list has no reason line for big-art.bin"
 out="$(bash "$HERE/verify-snapshot.sh" "$W/scratch-small" "$SNAP" in 2>&1)"; rc=$?
 expect_exit "verify-snapshot passes the untouched copy" "$rc" 0
 out="$(bash "$HERE/verify-snapshot.sh" "$B" "$SNAP" 2>&1)"; rc=$?
@@ -173,7 +174,7 @@ printf 'CLAUDE.md\n./docs/a.md\nbig-art.bin\nno-such-file.md\nCLAUDE.md\n' > "$W
 out="$(bash "$HERE/examined.sh" "$SNAP" "$W/opened.txt" 2>&1)"; rc=$?
 expect_exit "examined writes the examined list" "$rc" 0
 expect_has  "examined counts the 2 opened files once each" "$out" "EXAMINED 2 files opened"
-expect_has  "examined names a file the reader wanted that the copy left out" "$out" "WANTED   big-art.bin (left out: over 1 KB)"
+expect_has  "examined names a file the reader wanted that the copy left out" "$out" "WANTED   big-art.bin (left out: over 4 KB)"
 grep -q "	UNKNOWN	not on the snapshot list	no-such-file.md$" "$W/scratch-small-examined.tsv" 2>/dev/null && ok "examined marks a path that is not on the snapshot list" || bad "examined lost the unknown path"
 grep -q "^1	EXAMINED	[0-9a-f]\{64\}	CLAUDE.md$" "$W/scratch-small-examined.tsv" 2>/dev/null && ok "examined carries the snapshot fingerprint for an opened file" || bad "examined has no fingerprint for CLAUDE.md"
 out="$(bash "$HERE/examined.sh" "$SNAP" 2>&1)"; rc=$?
