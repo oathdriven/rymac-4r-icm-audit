@@ -244,6 +244,94 @@ expect_exit "secrets quiet with no keys" "$rc" 0
 out="$(bash "$HERE/nested-repos.sh" "$C" 2>&1)"; rc=$?
 expect_exit "nested-repos quiet with no nested repo" "$rc" 0
 
+# ---------- THE PLANT LIMIT (v1.6.0): a later audit plants 0 new tests ----------
+PL="$HERE/plant-limit.sh"
+row() { printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" "$5" "$6" "x" >> "$7/4r-tests/tests.tsv"; }
+
+P1="$W/pl1"; mkdir -p "$P1"
+out="$(bash "$PL" budget "$P1" 2026-01-01 3 2>&1)"; rc=$?
+expect_exit "plant-limit sets a budget on a first audit" "$rc" 0
+expect_has  "first audit: 4 new tests for each of 3 promises" "$out" "kind=FIRST new tests allowed=12"
+out="$(bash "$PL" budget "$P1" 2026-01-01 500 2>&1)"
+expect_has  "a budget is set 1 time and never raised" "$out" "already set"
+for i in 1 2 3 4; do row "a$i" 2026-01-01 "no banned word" mistake block first "$P1"; row "b$i" 2026-01-01 "prices match" mistake block first "$P1"; row "c$i" 2026-01-01 "no keys" clean pass first "$P1"; done
+out="$(bash "$PL" check "$P1" 2026-01-01 2>&1)"; rc=$?
+expect_exit "plant-limit check passes inside the limit" "$rc" 0
+expect_has  "check counts 12 of 12" "$out" "new=12 of 12 allowed"
+
+out="$(bash "$PL" budget "$P1" 2026-01-02 3 2>&1)"; rc=$?
+expect_exit "a later audit gets a budget" "$rc" 0
+expect_has  "a later audit is allowed 0 new tests" "$out" "kind=LATER new tests allowed=0"
+expect_has  "a later audit is told to plant nothing" "$out" "Plant NOTHING new this run."
+expect_has  "a changed guard earns 0 new tests" "$out" "A guard that changed is tested by the replay and earns 0 new tests."
+out="$(bash "$PL" check "$P1" 2026-01-02 2>&1)"; rc=$?
+expect_exit "a later audit that planted nothing passes" "$rc" 0
+expect_has  "the check says running again finds nothing new" "$out" "NOTHING NEW WAS PLANTED"
+
+out="$(bash "$PL" budget "$P1" 2026-01-03 3 --guard-changed hooks/guard.sh 2>&1)"; rc=$?
+expect_exit "there is no way to claim a changed guard" "$rc" 2
+out="$(bash "$PL" budget "$P1" 2026-01-03 3 2>&1)"
+row "z1" 2026-01-03 "no banned word" shape block new-promise "$P1"; row "z2" 2026-01-03 "no banned word" shape block new-promise "$P1"
+out="$(bash "$PL" check "$P1" 2026-01-03 2>&1)"; rc=$?
+expect_exit "a later audit that planted new tests fails" "$rc" 1
+expect_has  "the check says over the limit" "$out" "OVER THE LIMIT. This run saved 2 new tests and 0 were allowed."
+expect_has  "the check blocks the report" "$out" "The report cannot be written until this passes."
+
+P2="$W/pl2"; mkdir -p "$P2"
+bash "$PL" budget "$P2" 2026-01-01 500 > "$W/pl2.out" 2>&1
+expect_has  "a first audit never gets more than 40" "$(cat "$W/pl2.out")" "new tests allowed=40"
+for i in 1 2 3 4 5; do row "a$i" 2026-01-01 "no banned word" mistake block first "$P2"; done
+out="$(bash "$PL" check "$P2" 2026-01-01 2>&1)"; rc=$?
+expect_exit "5 tests for 1 promise fails" "$rc" 1
+expect_has  "the check names the promise over its 4" "$out" "TOO MANY FOR 1 PROMISE (the limit is 4): no banned word (5)"
+
+P3="$W/pl3"; mkdir -p "$P3"
+bash "$PL" budget "$P3" 2026-01-01 1 >/dev/null 2>&1; row "a1" 2026-01-01 "no banned word" mistake block first "$P3"
+bash "$PL" check "$P3" 2026-01-01 >/dev/null 2>&1
+out="$(bash "$PL" budget "$P3" 2026-01-02 1 --owner-hole "check the word in capitals too" --new-promise "no banned word" --new-promise "prices match" 2>&1)"
+expect_has  "an owner hole earns 2 and a promise with no tests earns 4" "$out" "kind=LATER new tests allowed=6"
+expect_has  "a promise that already has tests earns 0" "$out" "already has saved tests, so it earns 0 new tests"
+row "h1" 2026-01-02 "no banned word" mistake block owner-hole "$P3"; row "h2" 2026-01-02 "no banned word" clean pass owner-hole "$P3"
+out="$(bash "$PL" check "$P3" 2026-01-02 2>&1)"; rc=$?
+expect_exit "owner hole tests inside the limit pass" "$rc" 0
+expect_has  "the check prints the owner's own words" "$out" "in the owner's words: check the word in capitals too"
+bash "$PL" budget "$P3" 2026-01-03 1 >/dev/null 2>&1
+row "w1" 2026-01-03 "no banned word" mistake block first "$P3"
+out="$(bash "$PL" check "$P3" 2026-01-03 2>&1)"; rc=$?
+expect_exit "a later run cannot call a new test a first test" "$rc" 1
+expect_has  "the check names the wrong reason" "$out" "WRONG REASON on new tests in a LATER run"
+
+P4="$W/pl4"; mkdir -p "$P4"
+bash "$PL" budget "$P4" 2026-01-01 1 >/dev/null 2>&1; row "a1" 2026-01-01 "no banned word" mistake block first "$P4"
+bash "$PL" check "$P4" 2026-01-01 >/dev/null 2>&1
+bash "$PL" budget "$P4" 2026-01-02 1 >/dev/null 2>&1
+printf 'a1\t2026-01-01\tno banned word\tmistake\tpass\tfirst\tx\n' > "$P4/4r-tests/tests.tsv"
+out="$(bash "$PL" check "$P4" 2026-01-02 2>&1)"; rc=$?
+expect_exit "a saved test rewritten during a run fails" "$rc" 1
+expect_has  "the check says saved tests changed" "$out" "SAVED TESTS CHANGED during this run"
+out="$(bash "$PL" budget "$P4" 2026-01-03 1 2>&1)"; rc=$?
+expect_exit "a saved test changed between runs stops the budget" "$rc" 1
+expect_has  "the budget says the list changed since the seal" "$out" "SAVED TESTS CHANGED since the last run sealed them"
+
+P5="$W/pl5"; mkdir -p "$P5/4r-tests/old-run"; printf '# record\n' > "$P5/site-2025-12-01.md"; printf 'x\n' > "$P5/4r-tests/old-run/case.txt"
+out="$(bash "$PL" budget "$P5" 2026-01-01 9 2>&1)"; rc=$?
+expect_exit "an audited folder with no list is not a first audit" "$rc" 3
+expect_has  "old saved tests get listed before anything new" "$out" "LIST THE SAVED TESTS FIRST"
+row "o1" 2025-12-01 "no banned word" mistake block legacy "$P5"
+out="$(bash "$PL" budget "$P5" 2026-01-01 9 2>&1)"
+expect_has  "adopted old tests earn 0 new tests" "$out" "kind=LATER new tests allowed=0"
+expect_has  "the budget says how many old tests were adopted" "$out" "ADOPTED 1 saved tests from an older version"
+
+P6="$W/pl6"; mkdir -p "$P6"
+out="$(bash "$PL" check "$P6" 2026-01-01 2>&1)"; rc=$?
+expect_exit "no budget means no report" "$rc" 1
+expect_has  "the check says budget never ran" "$out" "NO BUDGET"
+bash "$PL" budget "$P6" 2026-01-01 1 >/dev/null 2>&1; row "a1" 2026-01-01 "no banned word" mistake block first "$P6"
+mkdir -p "$P6/4r-tests/run-2026-01-01"; for i in $(seq 1 60); do printf 'x\n' > "$P6/4r-tests/run-2026-01-01/planted-$i.txt"; done
+out="$(bash "$PL" check "$P6" 2026-01-01 2>&1)"; rc=$?
+expect_exit "tests planted off the list fail" "$rc" 1
+expect_has  "the check says more files than the list explains" "$out" "MORE FILES THAN THE LIST EXPLAINS"
+
 echo
 if [ "$fails" -eq 0 ]; then echo "selftest: $n of $n held. Every script fires on the mistake and stays quiet on the clean case."; exit 0; fi
 echo "selftest: $fails of $n WRONG. Do not trust the audit until this passes."; exit 1

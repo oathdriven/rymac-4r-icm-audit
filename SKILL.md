@@ -25,7 +25,7 @@ Supporting files, read each 1 when its layer starts:
 
 Scripts, run them, do not read them: `scripts/routes.sh`, `scripts/nested-repos.sh`,
 `scripts/secrets.sh`, `scripts/placeholders.sh`, `scripts/guards.sh`, `scripts/size.sh`,
-`scripts/copy-target.sh`, `scripts/examined.sh`, `scripts/verify-snapshot.sh`.
+`scripts/copy-target.sh`, `scripts/examined.sh`, `scripts/verify-snapshot.sh`, `scripts/plant-limit.sh`.
 `scripts/selftest.sh` proves every script on planted cases. Run the self-test first on a new machine.
 
 ## The helpers, and the model each 1 runs on
@@ -101,21 +101,27 @@ model by default. The report says which model each helper ran on.
       stranger's OPENED list and run `bash scripts/examined.sh <scratch>-snapshot.tsv <opened.txt>`.
       **In the copy and opened by the auditor are 2 different claims.** The report gives both
       counts apart, and names every file the stranger went looking for that the copy left out.
-- [ ] **3. REALITY.** For **every** promise from layer 1 question 3, plant 1 mistake the guard
-      should catch and 1 clean case the guard should pass, in the scratch copy or on a copy of
-      the guard's input. A promise with no guard gets its mistake planted too. Then check
+- [ ] **3. REALITY.** FIRST run `bash scripts/plant-limit.sh budget <results-home> <run> <promises>`.
+      The line it prints is the most new tests this run may plant. On every audit after the
+      first that number is 0: replay the saved tests and plant NOTHING new. On a first audit,
+      for every promise from layer 1 question 3, plant 1 mistake the guard should catch and 1
+      clean case the guard should pass, in the scratch copy or on a copy of the guard's input,
+      inside that number. A promise with no guard gets its mistake planted too. Then check
       **every** claim that says done, live, approved or a count in the entry files and the
       status files, 3 at the least. `references/reality.md` has the method.
 - [ ] **4. REPORT.** Every finding from layers 1 to 3 becomes a numbered fix. Each fix gets
       measured (who it hits, how many, how bad) and ranked by importance, the method in
       `references/report.md`. The most important ones get named at the top. Write the record
-      with `templates/record.md`, then the page with `templates/report.html`. Before
+      with `templates/record.md`, then the page with `templates/report.html`. Before the
+      record is written, run `bash scripts/plant-limit.sh check <results-home> <run>`. It must
+      print `PLANT CHECK ... OK`, and that line goes in the record word for word. A failed
+      check means no report: take the extra tests out first. Before
       publishing, run the completeness check in `references/report.md`. Say plainly what the
       audit could not see.
 - [ ] **5. FIX, on the owner's go.** Offer to fix every item, in rank order. On the go, follow
       `references/fix.md`: each fix gets its own change and its own proof, the calls only the
       owner can make get asked as plain questions, then the 4R audit runs again and the report
-      shows before and after. Before any fix adds a line, look for a line to delete or combine.
+      shows before and after. That second run replays the saved tests and plants nothing new. Before any fix adds a line, look for a line to delete or combine.
 
 ## Rules
 
@@ -131,11 +137,18 @@ model by default. The report says which model each helper ran on.
    allow list) gets 1 planted case that lands inside the skip. Every claim checked names the
    source the answer was read from: the live page, the online copy, the file.
    **Every planted test is saved and replayed on every later run**, so before and after
-   always compare the SAME tests. New shapes get planted only for a promise with no saved
-   tests yet, a guard file that changed since the last record, or a hole the owner names.
+   always compare the SAME tests. **A later audit plants 0 new tests.** New tests on a later
+   run come from only 2 places: a promise that has no saved test at all, or a hole the owner
+   named in the owner's own words. **A guard that changed NEVER earns new tests, no matter
+   who changed it.** The replay is the test of a changed guard. This is counted by
+   `scripts/plant-limit.sh`, not left to a sentence: it sets the number before layer 3 and
+   checks the number before the report, and the report cannot be written over the number.
    His words, 2026-10-05: "people keep hitting me up with just ongoing fucking reports of
    new shit." A run that invents a harder test and scores it against an easier old 1 makes a
-   working guard look broken, and the owner looks bad to his own people.
+   working guard look broken, and the owner looks bad to his own people. The old wording let
+   a guard "changed since the last record" earn new tests. Every fix pass changes a guard,
+   so every re-audit planted more: 1 buyer's 3rd audit planted 955 mistakes (2026-11-17).
+   That wording is gone.
 4. **When torn between 2 readings, take the harsher 1 and say you were torn.**
 5. **Write for the owner, not for a builder.** Plain words a 9th grader follows. Any
    technical word gets explained in the same sentence. Numbers as digits.
@@ -143,7 +156,9 @@ model by default. The report says which model each helper ran on.
    service, a job the workspace cannot do without a person.
 7. **Sweep every file the buyer receives for his voice laws, byte for byte**: "sold" in his voice (closed, never sold), em dashes, "whole", his personal email. 2026-09-30: "This is the shape my $30,000 offer sold on." survived 4 audits of a paid zip. His words: "I THOUGHT YOU AUDITED THAT FUCKING FILE 4 TIMES?" A voice law broken in a paid file is a finding with its file and line.
 8. **Never fix during the audit.** Fixes come after the report, in the fix pass, followed by
-   a re-audit so each change is measured.
+   a re-audit so each change is measured. The re-audit replays the saved tests and plants
+   nothing new. When the saved tests all hold and the stranger got stuck 0 times, the report
+   says so in 1 line and tells the owner to stop: running the audit again finds nothing new.
 9. **Show every finding in 1 report, measured and ranked. Never only 3.** His words,
    2026-10-04: "It should show ALL things found and rank them in importance. And let them fix
    all things." and "it had my VIP running 11 fucking audits because it only found and

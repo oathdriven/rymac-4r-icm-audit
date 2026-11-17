@@ -31,12 +31,29 @@ offers to fix every item on it, in rank order. On the owner's go, this is the pa
    added and the lines removed (counted, never guessed), and the proof (the command
    and its output).
 5. A fix that cannot be proven is not done. Say so in the record and move on.
+6. **A fix to a guard changes the line that was blind. It does not add a new guard.** A new
+   guard line is only for a step the owner cannot pull back: a send, a delete, a payment, a
+   publish. A guard that stops to ask the owner about everyday work (writing over a file,
+   running a script) makes the owner approve step after step, and the owner turns the guard
+   off. Count the lines in each guard file before the pass and after, and put both numbers in
+   the record. If a guard file grew, the chat summary says by how many lines, in its first 3
+   lines.
 
 ## After the last fix
 
-1. **Run the 4R audit again**, all 4 layers, on a fresh scratch copy.
+1. **Run the 4R audit again**, all 4 layers, on a fresh scratch copy. **This run plants
+   nothing new.** `scripts/plant-limit.sh budget` prints 0 for it, because the fix pass
+   changing a guard never earns new tests. Layer 3 replays the saved tests, the same ones
+   the first run used, so before and after compare the same tests.
 2. The new report shows **before and after** for every count, the size line included (run
    `scripts/size.sh` again, with the first record as the last record), and every fix from this list
    marked fixed, still open (with why), or waiting on the owner's answer.
-3. Anything the second run finds that the first did not goes on the new list, measured and
-   ranked like the rest. Say plainly that it is new and why the first run missed it.
+3. Anything the second run finds in layers 1, 2 or the claims check that the first did not
+   goes on the new list, measured and ranked like the rest. Say plainly that it is new and
+   why the first run missed it. A new guard hole is never on that list, because no new test
+   was planted.
+4. **Say when to stop.** When every saved test holds and the stranger got stuck 0 times, the
+   summary says: "Stop here. Every saved test holds. Running the audit again replays the
+   same tests and finds nothing new. Run it again after your building changes, or name a
+   hole you want tested." Never offer another fix pass on guard shapes the owner did not ask
+   about.

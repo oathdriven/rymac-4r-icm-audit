@@ -96,6 +96,13 @@ If the counts do not match, the report is not done.
    count comes ONLY from the replayed saved tests; new tests this run are counted on their own
    line and never turn a held guard into a worse number), and
    every fix from last time marked fixed, still open or worse.
+8b. **The plant limit line.** The line `scripts/plant-limit.sh check` printed, word for word:
+   `PLANT CHECK run=... new=N of M allowed ... OK`. No such line, or a line that says FAILED,
+   means the report is not written. On a later audit the line reads `new=0 of 0 allowed`
+   unless the owner named a hole or a promise had no saved test. If the owner named a hole,
+   the owner's words are printed under the line.
+8c. **When to stop.** If every saved test held and the stranger got stuck 0 times, 1 line:
+   "Stop here. Running the audit again replays the same tests and finds nothing new."
 9. **The offer.** 1 line: "Say go and every fix gets made in this order, each with its proof,
    then the audit runs again." The calls only the owner can make are listed as plain
    questions.

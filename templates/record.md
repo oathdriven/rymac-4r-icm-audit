@@ -23,7 +23,10 @@ Results home: `{{results home}}` (left out of every layer) · Last audit: {{date
 | Key shaped strings / settings files with keys | {{n}} / {{n}} | |
 | Saved tests replayed / still held | {{n}} / {{n}} | |
 | Skip rules found inside guards / a planted case got through | {{n}} / {{n}} | |
-| New tests this run (only where something changed) / found a hole | {{n}} / {{n}} | |
+| New tests this run / allowed by plant-limit.sh (0 on every audit after the first) | {{n}} / {{n}} | |
+| New tests that found a hole | {{n}} | |
+| The plant limit line, word for word | {{PLANT CHECK run=... OK}} | |
+| Lines in each guard file, before the fix pass / after | {{n}} / {{n}} | |
 | Stranger's job done | {{yes, partly, no}} | |
 | Files the stranger read before knowing where to go | {{n}} | |
 | Places the stranger got stuck | {{n}} | |

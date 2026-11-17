@@ -28,8 +28,9 @@ Your workspace is never changed. Not 1 byte. Everything runs in a throwaway copy
 2. **Run.** A fresh AI that has never seen your workspace does 1 real job, cold. The AI
    reports every place it got stuck, with the file and line that caused it.
 3. **Reality.** Every promise your workspace makes gets tested. The audit plants a mistake
-   each guard should catch, in every shape the mistake comes in, and a clean case each guard
-   should pass. Then the audit checks every line that says "done" or "live" against the
+   each guard should catch and a clean case each guard should pass, up to 4 tests for each
+   promise. Those tests get saved, and every later audit replays the same ones and plants
+   nothing new. Then the audit checks every line that says "done" or "live" against the
    thing each 1 describes.
 4. **Report.** The verdict in 1 sentence, the most important fixes, the counts, then every
    fix measured and ranked, and what the audit could not see. 1 run shows everything it
@@ -77,9 +78,35 @@ you install:
 
 The self-test builds a workspace full of planted mistakes and a clean workspace, then checks
 that every script catches the mistakes and stays quiet on the clean 1. You want to see
-every line held (`93 of 93 held` on this version).
+every line held (`129 of 129 held` on this version).
 
 ---
+
+## What changed in v1.6.0
+
+1 change, and it is the big 1: **the audit can no longer grow every time you run it.**
+
+- **What went wrong.** The rule said to plant new mistakes "only where something changed".
+  The fix pass changes your guards. So the next audit saw a changed guard, planted more
+  mistakes, found more holes, and the next fix pass changed the guard again. 1 owner's 3rd
+  audit planted 955 mistakes. His guard file grew on every pass, and his AI started asking
+  him to approve every step.
+- **The new law.** Your first audit plants up to 4 tests for each promise, 40 at the most.
+  **Every audit after that plants 0 new tests.** It replays the same saved tests, so before
+  and after always compare the same thing. A guard that changed never earns new tests.
+- **The only 2 ways a later audit plants anything:** a promise that has no saved test yet,
+  or a hole YOU name in your own words. The report prints your words back to you.
+- **A script holds the law, not a sentence.** `scripts/plant-limit.sh` sets the number before
+  any mistake is planted and checks the number before the report. Over the number, no report
+  gets written. A saved test that got rewritten or removed fails the run too.
+- **The audit tells you when to stop.** When every saved test holds and the stranger got
+  stuck 0 times, the report says: stop here, running it again finds nothing new.
+- **A fix no longer adds a new guard for everyday work.** A fix repairs the line that was
+  blind. A new guard line is only for a step you can't pull back: a send, a delete, a
+  payment, a publish. The record shows the size of each guard file before and after.
+- **Already ran an older version?** Your saved tests stay. The first run on this version
+  lists them, replays them, and plants nothing new.
+- Self test: 129 of 129.
 
 ## What changed in v1.5.6
 
@@ -188,8 +215,9 @@ that worked looked broken.
 
 - **Every planted test is saved** in your results home (`4r-tests/`) and **replayed first on
   every run, unchanged.** Before and after now compare the SAME tests.
-- **New tests get planted only where something changed**: a guard file that changed since the
-  last audit, a promise with no tests yet, or a hole you name. Nothing changed, nothing new.
+- **New tests get planted only for a promise with no tests yet, or a hole you name.** (This
+  version also let a changed guard earn new tests. v1.6.0 took that out, because every fix
+  changes a guard.)
 - **New tests are counted on their own line**, never mixed into "since last time".
 - The key scan no longer calls a picture packed into a web page a saved key, and still reports
   every long real token.
